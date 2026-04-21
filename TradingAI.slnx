@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/TradingAI.API/TradingAI.API.csproj" />
+    <Project Path="src/TradingAI.Application/TradingAI.Application.csproj" />
+    <Project Path="src/TradingAI.Domain/TradingAI.Domain.csproj" />
+    <Project Path="src/TradingAI.Infrastructure/TradingAI.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TradingAI.IntegrationTests/TradingAI.IntegrationTests.csproj" />
+    <Project Path="tests/TradingAI.UnitTests/TradingAI.UnitTests.csproj" />
+  </Folder>
+</Solution>
