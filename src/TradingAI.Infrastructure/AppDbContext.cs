@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TradingAI.Application.Common.Interfaces;
 using TradingAI.Domain.Entities;
 
 
 namespace TradingAI.Infrastructure
 {
-    public sealed class AppDbContext(DbContextOptions<AppDbContext> options) :DbContext(options)
+    public sealed class AppDbContext(DbContextOptions<AppDbContext> options) :DbContext(options), IApplicationDbContext
     {
 
         public DbSet<User> Users => Set<User>();

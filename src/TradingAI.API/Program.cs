@@ -1,8 +1,11 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
 using TradingAI.API.Middleware;
+using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
+using TradingAI.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,22 @@ builder.Host.UseSerilog((ctx, config) =>
     config.ReadFrom.Configuration(ctx.Configuration)
           .WriteTo.Console());
 
+//MediatR
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(IApplicationDbContext).Assembly);
+});
+
+//FluentValidation
+
+builder.Services.AddValidatorsFromAssembly(typeof(IApplicationDbContext).Assembly);
+
+//Interfaces
+builder.Services.AddScoped<IApplicationDbContext, AppDbContext>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+
+builder.Services.AddControllers();
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 
