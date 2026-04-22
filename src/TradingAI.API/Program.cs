@@ -3,6 +3,7 @@ using Serilog;
 using TradingAI.API.Middleware;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
+using TradingAI.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+//Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await AssetSeeder.SeedAssetAsync(db);
+}
 
 if (app.Environment.IsDevelopment())
 {

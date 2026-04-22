@@ -16,6 +16,20 @@ namespace TradingAI.Infrastructure.Configurations
 
             builder.HasKey(w => w.Id);
 
+            builder.HasIndex(w => w.UserId).IsUnique();
+            builder.HasIndex(w => w.AssetId).IsUnique();
+
+            builder.HasOne(w => w.User)
+                .WithMany(u => u.WathcLists)
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(w => w.Asset)
+                .WithMany()
+                .HasForeignKey(w => w.AssetId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
 
         }
     }

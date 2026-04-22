@@ -15,7 +15,14 @@ namespace TradingAI.Infrastructure.Migrations
                 name: "assets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Symbol = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Pair = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    DataSourceId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,8 +38,8 @@ namespace TradingAI.Infrastructure.Migrations
                     UserName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     DisplayName = table.Column<string>(type: "text", nullable: true),
-                    AvatarUrl = table.Column<string>(type: "text", nullable: false),
-                    Bio = table.Column<string>(type: "text", nullable: false),
+                    AvatarUrl = table.Column<string>(type: "text", nullable: true),
+                    Bio = table.Column<string>(type: "text", nullable: true),
                     Role = table.Column<int>(type: "integer", nullable: false),
                     AnalysisCountThisMonth = table.Column<int>(type: "integer", nullable: false),
                     LastAnalysisResetDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -115,22 +122,38 @@ namespace TradingAI.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssetId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_watch_lists", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_watch_lists_assets_AssetId",
+                        column: x => x.AssetId,
+                        principalTable: "assets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_watch_lists_users_UserId",
                         column: x => x.UserId,
                         principalTable: "users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_analyses_UserId",
                 table: "analyses",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_assets_Pair",
+                table: "assets",
+                column: "Pair",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_refresh_tokens_Token",
@@ -166,9 +189,16 @@ namespace TradingAI.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_watch_lists_AssetId",
+                table: "watch_lists",
+                column: "AssetId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_watch_lists_UserId",
                 table: "watch_lists",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -178,9 +208,6 @@ namespace TradingAI.Infrastructure.Migrations
                 name: "analyses");
 
             migrationBuilder.DropTable(
-                name: "assets");
-
-            migrationBuilder.DropTable(
                 name: "refresh_tokens");
 
             migrationBuilder.DropTable(
@@ -188,6 +215,9 @@ namespace TradingAI.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "watch_lists");
+
+            migrationBuilder.DropTable(
+                name: "assets");
 
             migrationBuilder.DropTable(
                 name: "users");

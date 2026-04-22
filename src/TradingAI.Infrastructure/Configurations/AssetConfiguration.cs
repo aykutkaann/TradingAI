@@ -15,6 +15,16 @@ namespace TradingAI.Infrastructure.Configurations
 
             builder.HasKey(a => a.Id);
 
+            builder.Property(a => a.Symbol).IsRequired().HasMaxLength(20);
+            builder.Property(a => a.Pair).IsRequired().HasMaxLength(20);
+
+            builder.HasIndex(a => a.Pair).IsUnique();
+
+            builder.Property(a => a.Name).IsRequired().HasMaxLength(100);
+
+            builder.Property(a => a.DataSourceId).IsRequired().HasMaxLength(100);
+
+
 
         }
     }
