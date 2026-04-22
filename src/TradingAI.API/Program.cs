@@ -5,6 +5,7 @@ using Serilog;
 using TradingAI.API.Middleware;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
+using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,8 +38,12 @@ builder.Services.AddValidatorsFromAssembly(typeof(IApplicationDbContext).Assembl
 
 //Interfaces
 builder.Services.AddScoped<IApplicationDbContext, AppDbContext>();
-builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+//JWT
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 
 builder.Services.AddControllers();
