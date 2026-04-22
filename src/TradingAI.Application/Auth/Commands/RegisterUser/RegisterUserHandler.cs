@@ -37,7 +37,7 @@ namespace TradingAI.Application.Auth.Commands.RegisterUser
 
             var accessToken = jwt.GenerateAccessToken(user);
 
-            var refreshToken = jwt.GetRefreshToken(request.IpAddress);
+            var refreshToken = jwt.GenerateRefreshToken(request.IpAddress);
 
             user.RefreshTokens.Add(refreshToken);
 

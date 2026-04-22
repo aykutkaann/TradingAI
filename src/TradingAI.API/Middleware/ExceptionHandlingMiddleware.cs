@@ -1,36 +1,59 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
+using TradingAI.Application.Common.Exceptions;
 
-namespace TradingAI.API.Middleware
+namespace TradingAI.API.Middleware;
+
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public async Task InvokeAsync(HttpContext context)
     {
-        public async Task InvokeAsync(HttpContext context)
+        try
         {
-            try
-            {
-                await next(context);
-            } catch (Exception err)
-            {
-                logger.LogError(err, "An unhandled exception occurred during the request.");
-                await HandleException(context);
-            }
-
-
+            await next(context);
         }
-
-        private static Task HandleException(HttpContext context)
+        catch (Exception err)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            logger.LogError(err, "An unhandled exception occurred during the request.");
+            await HandleExceptionAsync(context, err);
+        }
+    }
 
-            var response = new
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        var code = exception switch
+        {
+            ValidationException     => HttpStatusCode.BadRequest,    // 400
+            UnauthorizedException   => HttpStatusCode.Unauthorized,  // 401
+            NotFoundException       => HttpStatusCode.NotFound,      // 404
+            ConflictException       => HttpStatusCode.Conflict,      // 409
+            _                       => HttpStatusCode.InternalServerError // 500
+        };
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)code;
+
+        object payload = exception switch
+        {
+            ValidationException ve => new
             {
-                status = context.Response.StatusCode,
-                message = "An unexpected error occured."
-            };
+                status = (int)code,
+                message = ve.Message,
+                errors = ve.Errors
+            },
+            ConflictException or NotFoundException or UnauthorizedException => new
+            {
+                status = (int)code,
+                message = exception.Message
+            },
+            _ => new
+            {
+                status = (int)code,
+                message = "An unexpected error occurred."
+            }
+        };
 
-            var jsonResponse = JsonSerializer.Serialize(response);
-            return context.Response.WriteAsync(jsonResponse);
-    }   }
+        var result = JsonSerializer.Serialize(payload);
+        return context.Response.WriteAsync(result);
+    }
 }

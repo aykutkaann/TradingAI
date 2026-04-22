@@ -11,8 +11,8 @@ namespace TradingAI.Domain.Entities
         public string UserName { get; set; }
         public string PasswordHash { get; set; }
         public string? DisplayName { get; set; }
-        public string AvatarUrl { get; set; }
-        public string Bio { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? Bio { get; set; }
         public UserRole Role  { get; set; }
         public int AnalysisCountThisMonth { get; set; } = 0;
 
