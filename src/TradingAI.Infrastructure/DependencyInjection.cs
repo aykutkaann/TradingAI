@@ -9,6 +9,7 @@ using System.Text;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Identity;
+using TradingAI.Infrastructure.MarketData;
 
 namespace TradingAI.Infrastructure
 {
@@ -22,6 +23,13 @@ namespace TradingAI.Infrastructure
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IJwtService, JwtService>();
             services.Configure<JwtSettings>(config.GetSection("Jwt"));
+
+
+            // Market data
+            services.Configure<TwelveDataSettings>(config.GetSection("TwelveData"));
+            services.AddHttpClient<CoinGeckoClient>(c => c.BaseAddress = new Uri("https://api.coingecko.com"));
+            services.AddHttpClient<TwelveDataClient>();
+            services.AddScoped<IMarketDataService, MarketDataService>();
 
             var jwtSettings = config.GetSection("Jwt").Get<JwtSettings>()!;
 

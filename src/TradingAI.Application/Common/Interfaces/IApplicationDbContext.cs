@@ -7,8 +7,10 @@ namespace TradingAI.Application.Common.Interfaces
     {
         DbSet<User> Users { get; }
         DbSet<RefreshToken> RefreshTokens { get; }
-        DbSet<Asset> Assets { get; }
-        DbSet<WatchListItem> WatchListItems { get; }
+        DbSet<Analysis> Analyses { get; }
+        DbSet <Asset> Assets { get; }
+        DbSet<UserFollow> UserFollows { get; }
+        DbSet <WatchListItem> WatchLists { get; }
 
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
