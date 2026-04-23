@@ -3,11 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
+using TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset;
 using TradingAI.Application.Features.Analyses.Dtos;
 using TradingAI.Domain.Entities;
 using TradingAI.Domain.Enums;
 
-namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
+namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
 {
     public class AnalyzeImageCommandHandler(
         IApplicationDbContext db,
@@ -50,15 +51,30 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
             var imageUrl = await fileStorage.SaveAsync(buffered, request.FileName, user.Id.ToString(), cancellationToken);
 
 
-             var analysis = new Analysis
-             {
-                 Id = Guid.NewGuid(),
-                 UserId = user.Id,
-                 Type = AnalysisType.ImageUpload,
-                 ImageUrl = request.ImageMediaType,
-                 UserPrompt = request.UserPrompt,
-                 TimeFrame = request.TimeFrame
-             };
+
+            var analysis = new Analysis
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                AssetId = null,                     // ← see issue #3 below
+                Type = AnalysisType.ImageUpload,
+                ImageUrl = imageUrl,
+                UserPrompt = request.UserPrompt,
+                TimeFrame = request.TimeFrame,
+                Pair = request.AssetPair,           // free-text user-entered pair
+                AiAnalysis = result.Analysis,
+                TrendDirection = result.TrendDirection,
+                Summary = result.Summary,
+                DetectedPatterns = JsonSerializer.Serialize(result.DetectedPatterns),
+                KeyLevels = JsonSerializer.Serialize(result.KeyLevels),   // whole object
+                SuggestedEntry = result.SuggestedEntry,
+                StopLoss = result.StopLoss,
+                TakeProfit1 = result.TakeProfit1,
+                TakeProfit2 = result.TakeProfit2,
+                RiskRewardRatio = result.RiskRewardRatio,
+                IsPublished = false,
+                CreatedAt = DateTime.UtcNow
+            };
 
             db.Analyses.Add(analysis);
 
@@ -71,14 +87,22 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
         }
 
 
+        private sealed record KeyLevelsJson(List<decimal>? Support, List<decimal>? Resistance);
 
         private AnalysisDto MapToDto(Analysis analysis, User user, Asset? asset = null)
         {
   
             var patterns = JsonSerializer.Deserialize<List<string>>(analysis.DetectedPatterns ?? "[]") ?? new List<string>();
 
-            var supportLevels = JsonSerializer.Deserialize<List<decimal>>(analysis.KeyLevels ?? "[]") ?? new List<decimal>();
-            var resistanceLevels = JsonSerializer.Deserialize<List<decimal>>(analysis.KeyLevels ?? "[]") ?? new List<decimal>();
+
+            var keyLevels = string.IsNullOrEmpty(analysis.KeyLevels)
+                ? new KeyLevelsJson(null, null)
+                : JsonSerializer.Deserialize<KeyLevelsJson>(analysis.KeyLevels,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                  ?? new KeyLevelsJson(null, null);
+
+            var supportLevels = keyLevels.Support ?? new List<decimal>();
+            var resistanceLevels = keyLevels.Resistance ?? new List<decimal>();
 
             return new AnalysisDto(
                 Id: analysis.Id,
@@ -103,7 +127,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 IsPublished: analysis.IsPublished,
                 LikeCount: analysis.Likes?.Count ?? 0,
                 CommentCount: analysis.Comments?.Count ?? 0,
-                CreatedAt: DateTime.UtcNow
+                CreatedAt: analysis.CreatedAt
             );
         }
     } 

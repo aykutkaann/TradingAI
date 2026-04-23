@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
+namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
 {
     public class AnalyzeImageCommandValidator :AbstractValidator<AnalyzeImageCommand>
     {

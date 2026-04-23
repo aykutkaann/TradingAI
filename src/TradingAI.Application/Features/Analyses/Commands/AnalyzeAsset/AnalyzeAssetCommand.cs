@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Features.Analyses.Dtos;
 
-namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
+namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
 {
 
     public record AnalyzeAssetCommand(

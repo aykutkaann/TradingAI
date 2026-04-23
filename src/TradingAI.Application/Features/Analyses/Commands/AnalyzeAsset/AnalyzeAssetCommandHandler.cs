@@ -20,7 +20,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
         public async Task<AnalysisDto> Handle(AnalyzeAssetCommand request, CancellationToken cancellationToken)
         {
             var user = await db.Users.FirstOrDefaultAsync(x => x.Id == request.UserId, cancellationToken)
-                ?? throw new NotFoundException("User nor found.");
+                ?? throw new NotFoundException("User not found.");
 
             var now = DateTime.UtcNow;
             if(user.LastAnalysisResetDate.Year != now.Year || user.LastAnalysisResetDate.Month != now.Month)
@@ -37,6 +37,8 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 ?? throw new NotFoundException("Asset not found.");
 
             var livePrice = await marketData.GetLivePriceAsync(asset, cancellationToken);
+            if (livePrice == null)
+                throw new NotFoundException("Could not fetch live price data.");
             var candles = await marketData.GetHistoricalDataAsync(asset, request.TimeFrame, limit: 100, cancellationToken);
 
             if (livePrice == null)

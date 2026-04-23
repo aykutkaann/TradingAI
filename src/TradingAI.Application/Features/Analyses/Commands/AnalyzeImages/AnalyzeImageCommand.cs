@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Features.Analyses.Dtos;
 
-namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
+namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
 {
     public record AnalyzeImageCommand(
             Guid UserId,          // from auth context, not client

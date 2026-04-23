@@ -9,7 +9,7 @@ namespace TradingAI.Domain.Entities
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public Guid AssetId { get; set; }
+        public Guid? AssetId { get; set; }
 
 
         //Inputs
@@ -45,7 +45,7 @@ namespace TradingAI.Domain.Entities
 
         // Navigation
         public User User { get; set; }
-        public Asset Asset { get; set; }
+        public Asset? Asset { get; set; }
         public ICollection<AnalysisComment> Comments { get; set; } = new HashSet<AnalysisComment>();
         public ICollection<AnalysisLike> Likes { get; set; } = new HashSet<AnalysisLike>();
 
