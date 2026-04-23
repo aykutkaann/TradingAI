@@ -14,12 +14,14 @@ public static class AnalysisMapper
     };
 
 
-    public static AnalysisDto ToDto(Analysis a)
+    public static AnalysisDto ToDto(Analysis a, Guid? currentUserId = null)
     {
         // Defensive: if navigation wasn't included, fail loudly instead of silently returning null.
         if (a.User is null)
             throw new InvalidOperationException(
                 $"Analysis {a.Id}: User navigation not loaded. Did you forget .Include(a => a.User)?");
+
+        var isLikedByMe = currentUserId.HasValue && a.Likes is not null && a.Likes.Any(a => a.UserId == currentUserId.Value);
 
         var patterns = string.IsNullOrWhiteSpace(a.DetectedPatterns)
             ? new List<string>()
@@ -53,7 +55,9 @@ public static class AnalysisMapper
             IsPublished: a.IsPublished,
             LikeCount: a.Likes?.Count ?? 0,
             CommentCount: a.Comments?.Count ?? 0,
-            CreatedAt: a.CreatedAt
+            CreatedAt: a.CreatedAt,
+            IsLikedByMe: isLikedByMe
+
         );
     }
 }

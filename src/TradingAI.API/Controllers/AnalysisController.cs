@@ -14,6 +14,8 @@ using TradingAI.Application.Features.Analyses.Commands.DeleteAnalysis;
 using TradingAI.Application.Features.Analyses.Commands.PublishAnalysis;
 using TradingAI.Application.Features.Analyses.Commands.UnpublishAnalysis;
 using TradingAI.Application.Features.Analyses.Queries.GetPublicFeed;
+using TradingAI.Application.Features.Analyses.Commands.LikeAnalysis;
+using TradingAI.Application.Features.Analyses.Commands.UnlikeAnalysis;
 
 namespace TradingAI.API.Controllers
 {
@@ -129,9 +131,26 @@ namespace TradingAI.API.Controllers
         public async Task<ActionResult<PagedResult<AnalysisDto>>> GetFeed(
             [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
         {
-            var result = await mediator.Send(new GetPublicFeedQuery(page, pageSize),ct);
+            Guid? currentUserId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : null;
 
+            var result = await mediator.Send(new GetPublicFeedQuery(page, pageSize, currentUserId), ct);
             return Ok(result);
+        }
+
+        //POST like
+        [HttpPost("{id:guid}/like")]
+        public async Task<IActionResult> Like(Guid id, CancellationToken ct)
+        {
+            await mediator.Send(new LikeAnalysisCommand(id, User.GetUserId()), ct);
+            return NoContent();
+        }
+
+        //DELETE like
+        [HttpDelete("{id:guid}/like")]
+        public async Task<IActionResult> Unlike(Guid id, CancellationToken ct)
+        {
+            await mediator.Send(new UnlikeAnalysisCommand(id, User.GetUserId()), ct);
+            return NoContent();
         }
 
 
