@@ -14,6 +14,11 @@ namespace TradingAI.Infrastructure
         public DbSet<Asset> Assets => Set<Asset>();
         public DbSet<UserFollow> UserFollows => Set<UserFollow>();
         public DbSet<WatchListItem> WatchLists => Set<WatchListItem>();
+        public DbSet<AnalysisLike> AnalysisLikes => Set<AnalysisLike>();
+        public DbSet<AnalysisComment> AnalysisComments => Set<AnalysisComment>();
+
+
+
 
 
 

@@ -11,6 +11,8 @@ namespace TradingAI.Application.Common.Interfaces
         DbSet <Asset> Assets { get; }
         DbSet<UserFollow> UserFollows { get; }
         DbSet <WatchListItem> WatchLists { get; }
+        DbSet<AnalysisLike> AnalysisLikes { get; }
+        DbSet<AnalysisComment> AnalysisComments { get; }
 
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
