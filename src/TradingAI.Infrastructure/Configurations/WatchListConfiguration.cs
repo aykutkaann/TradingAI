@@ -16,8 +16,9 @@ namespace TradingAI.Infrastructure.Configurations
 
             builder.HasKey(w => w.Id);
 
-            builder.HasIndex(w => w.UserId).IsUnique();
-            builder.HasIndex(w => w.AssetId).IsUnique();
+            // A user can only add each asset once (composite unique),
+            // but the same asset can appear in many users' watchlists.
+            builder.HasIndex(w => new { w.UserId, w.AssetId }).IsUnique();
 
             builder.HasOne(w => w.User)
                 .WithMany(u => u.WathcLists)

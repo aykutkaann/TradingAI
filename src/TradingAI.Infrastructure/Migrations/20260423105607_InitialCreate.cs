@@ -99,22 +99,25 @@ namespace TradingAI.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    FollowerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FollowingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_user_follows", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_user_follows_users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_user_follows_users_FollowerId",
+                        column: x => x.FollowerId,
                         principalTable: "users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_user_follows_users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_user_follows_users_FollowingId",
+                        column: x => x.FollowingId,
                         principalTable: "users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -167,14 +170,15 @@ namespace TradingAI.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_follows_UserId",
+                name: "IX_user_follows_FollowerId_FollowingId",
                 table: "user_follows",
-                column: "UserId");
+                columns: new[] { "FollowerId", "FollowingId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_follows_UserId1",
+                name: "IX_user_follows_FollowingId",
                 table: "user_follows",
-                column: "UserId1");
+                column: "FollowingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_Email",
@@ -191,13 +195,12 @@ namespace TradingAI.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_watch_lists_AssetId",
                 table: "watch_lists",
-                column: "AssetId",
-                unique: true);
+                column: "AssetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_watch_lists_UserId",
+                name: "IX_watch_lists_UserId_AssetId",
                 table: "watch_lists",
-                column: "UserId",
+                columns: new[] { "UserId", "AssetId" },
                 unique: true);
         }
 

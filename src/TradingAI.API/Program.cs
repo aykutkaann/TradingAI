@@ -1,4 +1,6 @@
 using FluentValidation;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using TradingAI.API.Middleware;
 using TradingAI.Application.Common.Interfaces;
@@ -21,6 +23,8 @@ builder.Services.AddTransient(
     typeof(MediatR.IPipelineBehavior<,>),
     typeof(TradingAI.Application.Common.Behaviors.ValidationBehavior<,>));
 
+
+
 // FluentValidation
 builder.Services.AddValidatorsFromAssembly(typeof(IApplicationDbContext).Assembly);
 
@@ -31,8 +35,32 @@ builder.Services.AddHealthChecks()
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 

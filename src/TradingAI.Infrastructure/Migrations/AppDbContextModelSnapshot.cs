@@ -187,17 +187,21 @@ namespace TradingAI.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FollowerId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserId1")
+                    b.Property<Guid>("FollowingId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("FollowingId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("FollowerId", "FollowingId")
+                        .IsUnique();
 
                     b.ToTable("user_follows", (string)null);
                 });
@@ -222,10 +226,9 @@ namespace TradingAI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetId")
-                        .IsUnique();
+                    b.HasIndex("AssetId");
 
-                    b.HasIndex("UserId")
+                    b.HasIndex("UserId", "AssetId")
                         .IsUnique();
 
                     b.ToTable("watch_lists", (string)null);
@@ -251,13 +254,21 @@ namespace TradingAI.Infrastructure.Migrations
 
             modelBuilder.Entity("TradingAI.Domain.Entities.UserFollow", b =>
                 {
-                    b.HasOne("TradingAI.Domain.Entities.User", null)
-                        .WithMany("Followers")
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("TradingAI.Domain.Entities.User", null)
+                    b.HasOne("TradingAI.Domain.Entities.User", "Follower")
                         .WithMany("Following")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TradingAI.Domain.Entities.User", "Following")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
                 });
 
             modelBuilder.Entity("TradingAI.Domain.Entities.WatchListItem", b =>

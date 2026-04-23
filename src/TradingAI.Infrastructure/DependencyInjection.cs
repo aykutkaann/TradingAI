@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure.Auth;
+using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Identity;
 using TradingAI.Infrastructure.MarketData;
 
@@ -31,7 +33,27 @@ namespace TradingAI.Infrastructure
             services.AddHttpClient<TwelveDataClient>();
             services.AddScoped<IMarketDataService, MarketDataService>();
 
-            var jwtSettings = config.GetSection("Jwt").Get<JwtSettings>()!;
+
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                 ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")!));
+
+            services.AddScoped<ICacheService, RedisCacheService>();
+
+
+            services.AddHttpClient<CoinGeckoClient>(c =>
+            {
+                c.BaseAddress = new Uri("https://api.coingecko.com");
+                c.DefaultRequestHeaders.Add("User-Agent", "TradingAI/1.0");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                             | System.Security.Authentication.SslProtocols.Tls13
+            });
+
+
+                        var jwtSettings = config.GetSection("Jwt").Get<JwtSettings>()!;
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
