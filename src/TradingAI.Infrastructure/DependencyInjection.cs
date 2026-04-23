@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Common.Interfaces;
+using TradingAI.Infrastructure.Ai;
 using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Identity;
@@ -38,6 +39,10 @@ namespace TradingAI.Infrastructure
                  ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")!));
 
             services.AddScoped<ICacheService, RedisCacheService>();
+
+            // AI analysis (Grok via xAI / OpenAI-compatible API)
+            services.Configure<GrokSettings>(config.GetSection("Grok"));
+            services.AddScoped<IAiAnalysisService, GrokAiAnalysisService>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>
