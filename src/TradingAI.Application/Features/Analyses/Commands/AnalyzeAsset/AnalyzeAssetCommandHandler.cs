@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
+using TradingAI.Application.Common.Models;
 using TradingAI.Application.Features.Analyses.Commands.AnalyzeImage;
 using TradingAI.Application.Features.Analyses.Dtos;
 using TradingAI.Domain.Entities;
@@ -45,7 +46,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 throw new ConflictException("Could not fetch live price data.");
 
             var result = await ai.AnalyzeAssetAsync(asset.Pair, request.TimeFrame, livePrice.CurrentPrice, candles, request.UserPrompt, cancellationToken);
-
+            result = AiAnalysisValidator.SanitizeTradeLevels(result);
             var analysis = new Analysis
             {
                 Id = Guid.NewGuid(),

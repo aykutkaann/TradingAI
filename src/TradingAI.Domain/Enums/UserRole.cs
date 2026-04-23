@@ -17,7 +17,7 @@ namespace TradingAI.Domain.Enums
     {
         public static int MonthlyAnalysisCap(UserRole role) => role switch
         {
-            UserRole.Free => 5,
+            UserRole.Free => 10,
             UserRole.Pro => 50,
             UserRole.Analyst => int.MaxValue,
             UserRole.Admin => int.MaxValue,

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
+using TradingAI.Application.Common.Models;
 using TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset;
 using TradingAI.Application.Features.Analyses.Dtos;
 using TradingAI.Domain.Entities;
@@ -46,6 +47,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
             var result = await ai.AnalyzeChartImageAsync(buffered, request.ImageMediaType, request.AssetPair, request.TimeFrame, request.UserPrompt
                 , cancellationToken);
 
+            result = AiAnalysisValidator.SanitizeTradeLevels(result);
 
             buffered.Position = 0;
             var imageUrl = await fileStorage.SaveAsync(buffered, request.FileName, user.Id.ToString(), cancellationToken);
