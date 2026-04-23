@@ -11,6 +11,8 @@ using TradingAI.Application.Common.Models;
 using TradingAI.Application.Features.Analyses.Queries.GetMyAnalyses;
 using TradingAI.Application.Features.Analyses.Queries.GetAnalysisById;
 using TradingAI.Application.Features.Analyses.Commands.DeleteAnalysis;
+using TradingAI.Application.Features.Analyses.Commands.PublishAnalysis;
+using TradingAI.Application.Features.Analyses.Commands.UnpublishAnalysis;
 
 namespace TradingAI.API.Controllers
 {
@@ -93,6 +95,27 @@ namespace TradingAI.API.Controllers
         public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         {
             await mediator.Send(new DeleteAnalysisCommand(id, User.GetUserId()), ct);
+
+            return NoContent();
+        }
+
+        //Publish
+
+        [HttpPut("{id:guid}/publish")]
+        public async Task<IActionResult> Publish(Guid id, CancellationToken ct)
+        {
+            await mediator.Send(new PublishAnalysisCommand(id, User.GetUserId()), ct);
+
+            return NoContent();
+        }
+
+        //Unpublish
+
+        [HttpPut("{id:guid}/unpublish")]
+        public async Task<IActionResult> Unpublish(Guid id, CancellationToken ct)
+        {
+
+            await mediator.Send(new UnpublishAnalysisCommand(id, User.GetUserId()), ct);
 
             return NoContent();
         }

@@ -1,0 +1,12 @@
+﻿using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace TradingAI.Application.Features.Analyses.Commands.UnpublishAnalysis
+{
+    public record UnpublishAnalysisCommand(
+        Guid AnalysisId,
+        Guid CurrentUserId
+    ) : IRequest<Unit>;
+}
