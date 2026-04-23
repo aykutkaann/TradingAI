@@ -51,17 +51,23 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 AssetId = asset.Id,
+                Type = AnalysisType.AssetRequest,              
                 Pair = asset.Pair,
                 TimeFrame = request.TimeFrame,
-                ImageUrl = null, 
+                ImageUrl = null,
+                UserPrompt = request.UserPrompt,
+                AiAnalysis = result.Analysis,                 
                 Summary = result.Summary,
                 TrendDirection = result.TrendDirection,
                 DetectedPatterns = JsonSerializer.Serialize(result.DetectedPatterns),
+                KeyLevels = JsonSerializer.Serialize(result.KeyLevels),   
                 SuggestedEntry = result.SuggestedEntry,
                 StopLoss = result.StopLoss,
                 TakeProfit1 = result.TakeProfit1,
                 TakeProfit2 = result.TakeProfit2,
                 RiskRewardRatio = result.RiskRewardRatio,
+                PriceAtAnalysis = livePrice.CurrentPrice,      
+                IsPublished = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -78,13 +84,22 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
 
         }
 
+        private sealed record KeyLevelsJson(List<decimal>? Support, List<decimal>? Resistance);
+
         private AnalysisDto MapToDto(Analysis analysis, User user, Asset? asset = null)
         {
 
             var patterns = JsonSerializer.Deserialize<List<string>>(analysis.DetectedPatterns ?? "[]") ?? new List<string>();
 
-            var supportLevels = JsonSerializer.Deserialize<List<decimal>>(analysis.KeyLevels ?? "[]") ?? new List<decimal>();
-            var resistanceLevels = JsonSerializer.Deserialize<List<decimal>>(analysis.KeyLevels ?? "[]") ?? new List<decimal>();
+            var keyLevelsJson = string.IsNullOrWhiteSpace(analysis.KeyLevels)
+                        ? new KeyLevelsJson(null, null)
+                        : JsonSerializer.Deserialize<KeyLevelsJson>(analysis.KeyLevels,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                          ?? new KeyLevelsJson(null, null);
+
+            var supportLevels = keyLevelsJson.Support ?? new List<decimal>();
+            var resistanceLevels = keyLevelsJson.Resistance ?? new List<decimal>();
+
 
             return new AnalysisDto(
                 Id: analysis.Id,
@@ -92,10 +107,10 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 UserDisplayName: user.DisplayName ?? user.UserName,
                 AssetId: asset?.Id,
                 AssetSymbol: asset?.Symbol,
-                AssetPair: analysis.Pair, // Entity'deki ham değer
+                AssetPair: analysis.Pair, 
                 TimeFrame: analysis.TimeFrame,
                 ChartImageUrl: analysis.ImageUrl,
-                TrendDirection: analysis.TrendDirection, // "Bullish", "Bearish" vb.
+                TrendDirection: analysis.TrendDirection, 
                 DetectedPaterns: patterns,
                 SupportLevels: supportLevels,
                 ResistanceLevels: resistanceLevels,
@@ -104,12 +119,12 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 TakeProfit1: analysis.TakeProfit1,
                 TakeProfit2: analysis.TakeProfit2,
                 RiskRewardRatio: analysis.RiskRewardRatio,
-                Analysis: analysis.AiAnalysis, // AI'nın detaylı analizi
-                Summary: analysis.Summary,     // AI'nın kısa özeti
+                Analysis: analysis.AiAnalysis, 
+                Summary: analysis.Summary,     
                 IsPublished: analysis.IsPublished,
                 LikeCount: analysis.Likes?.Count ?? 0,
                 CommentCount: analysis.Comments?.Count ?? 0,
-                CreatedAt: DateTime.UtcNow
+                CreatedAt: analysis.CreatedAt
             );
         }
     }
