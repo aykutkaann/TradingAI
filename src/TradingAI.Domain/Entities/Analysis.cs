@@ -18,6 +18,8 @@ namespace TradingAI.Domain.Entities
         public string? UserPrompt { get; set; }
         public string TimeFrame { get; set; }  //"5m" "1h", "4h", "1d", "1w"
 
+        public string Pair { get; set; }
+
         //AI outputs
 
         public string AiAnalysis { get; set; }
@@ -34,7 +36,7 @@ namespace TradingAI.Domain.Entities
         //Tracking  
         public decimal? PriceAtAnalysis { get; set; }
         public bool IsPublished { get; set; }
-        public DateOnly CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public decimal? PriceAfter24h { get; set; }
         public decimal? PriceAfter7d { get; set; }

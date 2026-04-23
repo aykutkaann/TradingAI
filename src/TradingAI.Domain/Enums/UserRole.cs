@@ -12,4 +12,18 @@ namespace TradingAI.Domain.Enums
         Admin = 99
 
     }
+
+    public static class SubscriptionLimits
+    {
+        public static int MonthlyAnalysisCap(UserRole role) => role switch
+        {
+            UserRole.Free => 5,
+            UserRole.Pro => 50,
+            UserRole.Analyst => int.MaxValue,
+            UserRole.Admin => int.MaxValue,
+            _ => 0
+
+
+        };
+    }
 }

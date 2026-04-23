@@ -27,7 +27,7 @@ namespace TradingAI.Infrastructure.Storage
             //Build disk path
 
             var root = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-            var relativeFolder = Path.Combine("uploads", "charts", userId.ToString());
+            var relativeFolder = Path.Combine("uploads", "charts", userId);
             var fullFolder = Path.Combine(root, relativeFolder);
 
             if (!Directory.Exists(fullFolder))
