@@ -16,6 +16,10 @@ using TradingAI.Application.Features.Analyses.Commands.UnpublishAnalysis;
 using TradingAI.Application.Features.Analyses.Queries.GetPublicFeed;
 using TradingAI.Application.Features.Analyses.Commands.LikeAnalysis;
 using TradingAI.Application.Features.Analyses.Commands.UnlikeAnalysis;
+using TradingAI.Application.Features.Comments.DTOs;
+using TradingAI.Application.Features.Comments.Queries.GetCommentsForAnalysis;
+using TradingAI.Application.Features.Comments.Commands.CreateComment;
+using TradingAI.Application.Features.Comments.Commands.DeleteComment;
 
 namespace TradingAI.API.Controllers
 {
@@ -152,6 +156,43 @@ namespace TradingAI.API.Controllers
             await mediator.Send(new UnlikeAnalysisCommand(id, User.GetUserId()), ct);
             return NoContent();
         }
+
+
+        //GET comments
+        [HttpGet("{id:guid}/comments")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PagedResult<CommentDto>>> GetComments(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
+            CancellationToken ct = default)
+        {
+            Guid? currentUserId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : null;
+
+            var result = await mediator.Send(new GetCommentsForAnalysisQuery(id, currentUserId, page, pageSize), ct);
+            return Ok(result);
+        }
+
+        //POST comments
+        [HttpPost("{id:guid}/comments")]
+        public async Task<ActionResult<CommentDto>> CreateComment(Guid id, [FromBody] CreateCommentRequest body, CancellationToken ct)
+        {
+            var result = await mediator.Send(
+                new CreateCommentCommand(id, User.GetUserId(), body.Content), ct);
+
+            return CreatedAtAction(nameof(GetComments), new { id }, result);
+
+        }
+        public record CreateCommentRequest(string Content);
+
+        //DELETE comments
+        [HttpDelete("comments/{commentId:guid}")]
+        public async Task<IActionResult> DeleteComment(Guid commentId, CancellationToken ct)
+        {
+            await mediator.Send(new DeleteCommentCommand(commentId, User.GetUserId()), ct);
+
+            return NoContent();
+        }
+
+
+
 
 
     }

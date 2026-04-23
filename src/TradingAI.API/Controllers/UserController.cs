@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Extensions;
 using TradingAI.Application.Auth.DTOs;
-using TradingAI.Application.Users.Commands.UpdateProfile;
-using TradingAI.Application.Users.GetCurrentUser;
-using TradingAI.Application.Users.GetPublicProfile;
+using TradingAI.Application.Features.Users.Commands.UpdateProfile;
+using TradingAI.Application.Features.Users.GetCurrentUser;
+using TradingAI.Application.Features.Users.GetPublicProfile;
+
 
 namespace TradingAI.API.Controllers
 {

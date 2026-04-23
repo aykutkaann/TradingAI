@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Extensions;
 using TradingAI.API.Watchlist.DTOs;
-using TradingAI.Application.Watchlist.Commands.AddToWatchlist;
-using TradingAI.Application.Watchlist.Commands.RemoveFromWatchlist;
-using TradingAI.Application.Watchlist.Commands.ReorderWatchlist;
-using TradingAI.Application.Watchlist.DTOs;
-using TradingAI.Application.Watchlist.Queries.GetWatchlist;
+using TradingAI.Application.Features.Watchlist.Commands.AddToWatchlist;
+using TradingAI.Application.Features.Watchlist.Commands.RemoveFromWatchlist;
+using TradingAI.Application.Features.Watchlist.Commands.ReorderWatchlist;
+using TradingAI.Application.Features.Watchlist.DTOs;
+using TradingAI.Application.Features.Watchlist.Queries.GetWatchlist;
+
 
 namespace TradingAI.API.Controllers;
 
