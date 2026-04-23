@@ -13,12 +13,14 @@ using TradingAI.Application.Features.Analyses.Queries.GetAnalysisById;
 using TradingAI.Application.Features.Analyses.Commands.DeleteAnalysis;
 using TradingAI.Application.Features.Analyses.Commands.PublishAnalysis;
 using TradingAI.Application.Features.Analyses.Commands.UnpublishAnalysis;
+using TradingAI.Application.Features.Analyses.Queries.GetPublicFeed;
 
 namespace TradingAI.API.Controllers
 {
     [ApiController]
     [Route("api/analysis")]
     [Authorize]
+    [Tags("analysis")]
     public class AnalysisController(ISender mediator) : ControllerBase
     {
 
@@ -118,6 +120,18 @@ namespace TradingAI.API.Controllers
             await mediator.Send(new UnpublishAnalysisCommand(id, User.GetUserId()), ct);
 
             return NoContent();
+        }
+
+        //GetPublish Feed
+
+        [HttpGet("feed")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PagedResult<AnalysisDto>>> GetFeed(
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
+        {
+            var result = await mediator.Send(new GetPublicFeedQuery(page, pageSize),ct);
+
+            return Ok(result);
         }
 
 

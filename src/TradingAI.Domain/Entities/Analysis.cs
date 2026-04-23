@@ -37,6 +37,7 @@ namespace TradingAI.Domain.Entities
         public decimal? PriceAtAnalysis { get; set; }
         public bool IsPublished { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? PublishedAt { get; set; }
 
         public decimal? PriceAfter24h { get; set; }
         public decimal? PriceAfter7d { get; set; }
