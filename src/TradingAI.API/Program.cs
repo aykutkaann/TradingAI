@@ -6,6 +6,7 @@ using TradingAI.API.Middleware;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
 using TradingAI.Infrastructure.Seed;
+using TradingAI.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,6 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddTransient(
     typeof(MediatR.IPipelineBehavior<,>),
     typeof(TradingAI.Application.Common.Behaviors.ValidationBehavior<,>));
-
 
 
 // FluentValidation
@@ -82,6 +82,8 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

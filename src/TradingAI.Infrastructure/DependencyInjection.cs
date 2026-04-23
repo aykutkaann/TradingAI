@@ -13,6 +13,7 @@ using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Identity;
 using TradingAI.Infrastructure.MarketData;
+using TradingAI.Infrastructure.Storage;
 
 namespace TradingAI.Infrastructure
 {
@@ -26,6 +27,8 @@ namespace TradingAI.Infrastructure
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IJwtService, JwtService>();
             services.Configure<JwtSettings>(config.GetSection("Jwt"));
+            services.AddScoped<IFileStorage, LocalFileStorage>();
+
 
 
             // Market data
