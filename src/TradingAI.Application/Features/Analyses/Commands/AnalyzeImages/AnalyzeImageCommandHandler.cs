@@ -19,25 +19,8 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
 
         public async Task<AnalysisDto> Handle(AnalyzeImageCommand request, CancellationToken cancellationToken)
         {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken) 
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken)
                 ?? throw new UnauthorizedException("Invalid credentials.");
-
-
-            //Analys counter reset
-            var now = DateTime.UtcNow;
-            if(user.LastAnalysisResetDate.Year != now.Year || user.LastAnalysisResetDate.Month != now.Month)
-            {
-                user.AnalysisCountThisMonth = 0;
-                user.LastAnalysisResetDate = now;
-            }
-
-            //cap check
-
-            var cap = 5;
-
-           
-            if(user.AnalysisCountThisMonth >= cap)
-                throw new ConflictException($"Monthly analysis limit ({cap}) reached for {user.Role} plan.");
 
 
 
@@ -81,8 +64,6 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
             };
 
             db.Analyses.Add(analysis);
-
-            user.AnalysisCountThisMonth += 1;
             await db.SaveChangesAsync(cancellationToken);
 
             return MapToDto(analysis, user);

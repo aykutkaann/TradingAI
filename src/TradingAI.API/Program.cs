@@ -1,9 +1,11 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using TradingAI.API.Middleware;
 using TradingAI.API.Services;
+using TradingAI.Application.Common.Behaviors;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
 using TradingAI.Infrastructure.AI;
@@ -25,7 +27,10 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(IApplicationDbContext).Assembly));
 builder.Services.AddTransient(
     typeof(MediatR.IPipelineBehavior<,>),
-    typeof(TradingAI.Application.Common.Behaviors.ValidationBehavior<,>));
+    typeof(ValidationBehavior<,>));
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RateLimitBehavior<,>));
+
 
 
 // FluentValidation

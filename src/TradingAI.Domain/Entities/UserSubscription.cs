@@ -10,6 +10,9 @@ namespace TradingAI.Domain.Entities
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
 
+        public Guid PlanId { get; set; }
+        public SubscriptionPlan Plan { get; set; } = null!;
+
 
         public SubscriptionTier Tier { get; set; }
         public DateTime StartedAt { get; set; }

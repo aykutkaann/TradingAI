@@ -23,11 +23,12 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     {
         var code = exception switch
         {
-            ValidationException     => HttpStatusCode.BadRequest,    // 400
-            UnauthorizedException   => HttpStatusCode.Unauthorized,  // 401
-            NotFoundException       => HttpStatusCode.NotFound,      // 404
-            ConflictException       => HttpStatusCode.Conflict,      // 409
-            _                       => HttpStatusCode.InternalServerError // 500
+            ValidationException         => HttpStatusCode.BadRequest,       // 400
+            UnauthorizedException       => HttpStatusCode.Unauthorized,     // 401
+            NotFoundException           => HttpStatusCode.NotFound,         // 404
+            ConflictException           => HttpStatusCode.Conflict,         // 409
+            RateLimitExceededException  => HttpStatusCode.TooManyRequests,  // 429
+            _                           => HttpStatusCode.InternalServerError // 500
         };
 
         context.Response.ContentType = "application/json";
@@ -40,6 +41,15 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
                 status = (int)code,
                 message = ve.Message,
                 errors = ve.Errors
+            },
+            RateLimitExceededException rl => new
+            {
+                status = (int)code,
+                type = "rate-limit-exceeded",
+                message = rl.Message,
+                limitName = rl.LimitName,
+                used = rl.Used,
+                limit = rl.Limit
             },
             ConflictException or NotFoundException or UnauthorizedException => new
             {

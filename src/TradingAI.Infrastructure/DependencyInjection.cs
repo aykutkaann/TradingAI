@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,9 +35,10 @@ namespace TradingAI.Infrastructure
 
 
 
+
+
             // Market data
             services.Configure<TwelveDataSettings>(config.GetSection("TwelveData"));
-            services.AddHttpClient<CoinGeckoClient>(c => c.BaseAddress = new Uri("https://api.coingecko.com"));
             services.AddHttpClient<TwelveDataClient>();
             services.AddScoped<IMarketDataService, MarketDataService>();
 

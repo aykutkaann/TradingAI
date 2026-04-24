@@ -22,16 +22,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
             var user = await db.Users.FirstOrDefaultAsync(x => x.Id == request.UserId, cancellationToken)
                 ?? throw new NotFoundException("User not found.");
 
-            var now = DateTime.UtcNow;
-            if(user.LastAnalysisResetDate.Year != now.Year || user.LastAnalysisResetDate.Month != now.Month)
-            {
-                user.AnalysisCountThisMonth = 0;
-                user.LastAnalysisResetDate = now;
-            }
-
-            var cap = 5;
-            if(user.AnalysisCountThisMonth >= cap)
-                throw new ConflictException($"Monthly analysis limit ({cap}) reached for {user.Role} plan.");
+      
 
             var asset = await db.Assets.FindAsync(new object?[] { request.AssetId }, cancellationToken)
                 ?? throw new NotFoundException("Asset not found.");
@@ -72,9 +63,6 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
             };
 
             db.Analyses.Add(analysis);
-
-            user.AnalysisCountThisMonth += 1;
-
             await db.SaveChangesAsync(cancellationToken);
 
             return MapToDto(analysis, user, asset);

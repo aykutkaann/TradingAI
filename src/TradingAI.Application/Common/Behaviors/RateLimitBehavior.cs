@@ -3,6 +3,9 @@ using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.RateLimiting;
 
+
+namespace TradingAI.Application.Common.Behaviors;
+
 public class RateLimitBehavior<TRequest, TResponse>(
     IEntitlementService entitlements,
     IUsageCounter counter,

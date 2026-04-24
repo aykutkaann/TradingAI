@@ -23,6 +23,11 @@ namespace TradingAI.Infrastructure.Configurations
                 .WithMany(x => x.Subscriptions)
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(u => u.Plan)
+                .WithMany()
+                .HasForeignKey(u => u.PlanId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
