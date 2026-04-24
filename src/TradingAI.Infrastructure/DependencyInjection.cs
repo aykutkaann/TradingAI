@@ -15,6 +15,7 @@ using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Identity;
 using TradingAI.Infrastructure.MarketData;
 using TradingAI.Infrastructure.Storage;
+using TradingAI.Infrastructure.Subscipritons;
 
 namespace TradingAI.Infrastructure
 {
@@ -50,6 +51,9 @@ namespace TradingAI.Infrastructure
 
             //Outcome
             services.AddSingleton<IOutcomeEvaluator, OutcomeEvaluator>();
+            //Entitlements
+
+            services.AddScoped<IEntitlementService, EntitlementService>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>

@@ -77,6 +77,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await AssetSeeder.SeedAssetAsync(db);
+    await PlanSeeder.SeedPlanAsync(db);
 }
 
 if (app.Environment.IsDevelopment())

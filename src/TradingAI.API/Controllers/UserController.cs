@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Extensions;
+using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.Models;
 using TradingAI.Application.Features.Stats.DTOs;
 using TradingAI.Application.Features.Stats.GetPlatformStats;
@@ -99,6 +100,8 @@ namespace TradingAI.API.Controllers
             var result = await mediator.Send(new GetPlatformStatsQuery(), ct);
             return Ok(result);
         }
+
+
 
     }
 }
