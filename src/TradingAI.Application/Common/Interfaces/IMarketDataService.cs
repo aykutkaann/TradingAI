@@ -12,5 +12,7 @@ namespace TradingAI.Application.Common.Interfaces
         Task<IReadOnlyList<PriceData>> GetBatchPriceAsync(IReadOnlyList<Asset> assets, CancellationToken ct);
         Task<IReadOnlyList<OhlcCandle>> GetHistoricalDataAsync(Asset asset, string interval, int limit, CancellationToken ct);
 
+        Task<IReadOnlyList<PriceCandle>> GetCandlesAsync(string pair, string timeframe, DateTime fromUtc, DateTime toUtc, CancellationToken ct);
+
     }
 }

@@ -48,6 +48,7 @@ namespace TradingAI.Domain.Entities
         public DateTime? ExpiresAt { get; set; }
 
         public decimal? ResolvedPrice { get; set; }
+        public DateTime? ResolvedAt { get; set; }
 
         // Navigation
         public User User { get; set; }

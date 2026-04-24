@@ -5,6 +5,8 @@ using Serilog;
 using TradingAI.API.Middleware;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
+using TradingAI.Infrastructure.AI;
+using TradingAI.Infrastructure.OutcomeTracking;
 using TradingAI.Infrastructure.Seed;
 using TradingAI.Infrastructure.Storage;
 
@@ -27,6 +29,12 @@ builder.Services.AddTransient(
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssembly(typeof(IApplicationDbContext).Assembly);
+
+//Background service
+builder.Services.Configure<OutcomeTrackingSettings>(builder.Configuration.GetSection("OutcomeTracking"));
+
+builder.Services.AddSingleton<IOutcomeEvaluator, OutcomeEvaluator>();
+builder.Services.AddHostedService<OutcomeTrackingWorker>();
 
 // Health checks
 builder.Services.AddHealthChecks()
