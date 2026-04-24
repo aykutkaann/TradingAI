@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure.Ai;
+using TradingAI.Infrastructure.AI;
 using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Identity;
@@ -46,6 +47,9 @@ namespace TradingAI.Infrastructure
             // AI analysis (Grok via xAI / OpenAI-compatible API)
             services.Configure<GrokSettings>(config.GetSection("Grok"));
             services.AddScoped<IAiAnalysisService, GrokAiAnalysisService>();
+
+            //Outcome
+            services.AddSingleton<IOutcomeEvaluator, OutcomeEvaluator>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>
