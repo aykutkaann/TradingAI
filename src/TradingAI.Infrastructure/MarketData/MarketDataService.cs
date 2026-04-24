@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.Models;
 using TradingAI.Domain.Entities;
@@ -101,5 +102,14 @@ public class MarketDataService : IMarketDataService
             await _cache.SetAsync(key, fresh.ToList(), HistoryTtl, ct);
 
         return fresh;
+    }
+
+
+    public  Task<IReadOnlyList<PriceCandle>> GetCandlesAsync(
+    string pair, string timeFrame, DateTime fromUtc, DateTime toUtc, CancellationToken ct)
+    {
+
+        IReadOnlyList<PriceCandle> empty = Array.Empty<PriceCandle>();
+        return Task.FromResult(empty);
     }
 }

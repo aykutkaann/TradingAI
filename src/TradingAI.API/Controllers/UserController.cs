@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Extensions;
-using TradingAI.Application.Auth.DTOs;
-using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.Models;
-using TradingAI.Application.Features.Analyses.Queries.GetPublicFeed;
+using TradingAI.Application.Features.Stats.DTOs;
+using TradingAI.Application.Features.Stats.GetPlatformStats;
 using TradingAI.Application.Features.UserFollow.Commands.FollowUser;
 using TradingAI.Application.Features.UserFollow.Commands.UnfollowUser;
 using TradingAI.Application.Features.UserFollow.DTOs;
@@ -13,6 +12,7 @@ using TradingAI.Application.Features.UserFollow.Queries.GetFollowers;
 using TradingAI.Application.Features.UserFollow.Queries.GetFollowing;
 using TradingAI.Application.Features.Users.DTOs;
 using TradingAI.Application.Features.Users.GetPublicProfile;
+using TradingAI.Application.Features.Users.GetUserStats;
 
 
 namespace TradingAI.API.Controllers
@@ -77,6 +77,26 @@ namespace TradingAI.API.Controllers
 
             var result = await mediator.Send(new GetPublicProfileQuery(id, currentUserId), ct);
 
+            return Ok(result);
+        }
+
+
+        //GET user stats
+        [HttpGet("{id:guid}/stats")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserStatsDto>> GetUserStats(Guid id, CancellationToken ct)
+        {
+            var result = await mediator.Send(new GetUserStatsQuery(id), ct);
+
+            return Ok(result);
+        }
+
+        //GET platform stats
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<PlatformStatsDto>> GetPlatformStats(CancellationToken ct)
+        {
+            var result = await mediator.Send(new GetPlatformStatsQuery(), ct);
             return Ok(result);
         }
 

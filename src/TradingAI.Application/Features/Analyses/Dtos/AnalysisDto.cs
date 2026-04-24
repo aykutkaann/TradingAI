@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using TradingAI.Domain.Enums;
 
 namespace TradingAI.Application.Features.Analyses.Dtos
 {
@@ -9,6 +8,8 @@ namespace TradingAI.Application.Features.Analyses.Dtos
         Guid Id, Guid UserId, string UserDisplayName, Guid? AssetId, string? AssetSymbol, string? AssetPair, string TimeFrame,
         string? ChartImageUrl, string TrendDirection, IReadOnlyList<string> DetectedPaterns, IReadOnlyList<decimal> SupportLevels,
         IReadOnlyList<decimal> ResistanceLevels, decimal? SuggestedEntry, decimal? StopLoss, decimal? TakeProfit1, decimal? TakeProfit2,
-        decimal? RiskRewardRatio, string Analysis, string Summary, bool IsPublished, int LikeCount, int CommentCount, DateTime CreatedAt
+        decimal? RiskRewardRatio, string Analysis, string Summary, bool IsPublished, int LikeCount, int CommentCount,
+        AnalysisOutcome Outcome, bool TP1Hit, bool TP2Hit, bool SLHit, decimal? ResolvedPrice,
+        DateTime? ResolvedAt, DateTime? ExpiresAt, DateTime CreatedAt
         ,bool IsLikedByMe= false);
 }

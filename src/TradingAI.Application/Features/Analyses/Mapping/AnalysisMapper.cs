@@ -55,6 +55,13 @@ public static class AnalysisMapper
             IsPublished: a.IsPublished,
             LikeCount: a.Likes?.Count ?? 0,
             CommentCount: a.Comments?.Count ?? 0,
+            Outcome:a.Outcome,
+            TP1Hit:a.TakeProfit1Hit,
+            TP2Hit:a.TakeProfit2Hit,
+            SLHit: a.StopLossHit,
+            ResolvedPrice:a.ResolvedPrice,
+            ResolvedAt:a.ResolvedAt,
+            ExpiresAt:a.ExpiresAt,
             CreatedAt: a.CreatedAt,
             IsLikedByMe: isLikedByMe
 

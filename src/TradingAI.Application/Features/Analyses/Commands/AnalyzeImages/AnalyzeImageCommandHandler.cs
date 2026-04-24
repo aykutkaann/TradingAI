@@ -129,6 +129,13 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
                 IsPublished: analysis.IsPublished,
                 LikeCount: analysis.Likes?.Count ?? 0,
                 CommentCount: analysis.Comments?.Count ?? 0,
+                Outcome:analysis.Outcome,
+                TP1Hit:analysis.TakeProfit1Hit,
+                TP2Hit:analysis.TakeProfit2Hit,
+                SLHit: analysis.StopLossHit,
+                ResolvedPrice:analysis.ResolvedPrice,
+                ResolvedAt: analysis.ResolvedAt,
+                ExpiresAt: analysis.ExpiresAt,
                 CreatedAt: analysis.CreatedAt
             );
         }
