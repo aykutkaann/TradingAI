@@ -20,6 +20,7 @@ using TradingAI.Application.Features.Comments.DTOs;
 using TradingAI.Application.Features.Comments.Queries.GetCommentsForAnalysis;
 using TradingAI.Application.Features.Comments.Commands.CreateComment;
 using TradingAI.Application.Features.Comments.Commands.DeleteComment;
+using TradingAI.Application.Features.Analyses.Queries.GetFollowingFeed;
 
 namespace TradingAI.API.Controllers
 {
@@ -189,6 +190,18 @@ namespace TradingAI.API.Controllers
             await mediator.Send(new DeleteCommentCommand(commentId, User.GetUserId()), ct);
 
             return NoContent();
+        }
+
+        //GET following Feed
+
+        [HttpGet("following-feed")]
+        [Authorize]
+        public async Task<ActionResult<PagedResult<AnalysisDto>>> GetFollowingFeed(
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
+        {
+            var result= await mediator.Send(new GetFollowingFeedQuery(User.GetUserId(), page, pageSize), ct);
+
+            return Ok(result);
         }
 
 
