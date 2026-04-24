@@ -7,10 +7,10 @@ namespace TradingAI.Domain.Enums
     public enum  AnalysisOutcome
     {
         Pending = 0,
-        TakeProfit1Hit = 1,
-        TakeProfit2Hit = 2,
-        StopLossHit = 3,
-        Neutral = 4
+        Win = 1,
+        Loss = 2,
+        Expired = 3,
+        Invalidated = 4
 
     }
 }

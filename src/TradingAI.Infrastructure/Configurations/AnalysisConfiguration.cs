@@ -27,6 +27,20 @@ namespace TradingAI.Infrastructure.Configurations
 
             builder.Property(a => a.Summary).HasMaxLength(500);
 
+            builder.Property(a => a.ResolvedPrice).HasPrecision(18, 8);
+
+            builder.HasIndex(a => new { a.Outcome, a.OutcomeCheckedAt });
+
+            builder.HasIndex(a => new { a.Outcome, a.ExpiresAt });
+
+            builder.Property(a => a.Pair).IsRequired().HasMaxLength(20);
+
+            builder.Property(a => a.AiAnalysis).HasColumnType("text");
+
+            builder.Property(a => a.Outcome)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
             builder.HasOne(a => a.User)
                 .WithMany(u => u.Analyses)
                 .HasForeignKey(a => a.UserId)

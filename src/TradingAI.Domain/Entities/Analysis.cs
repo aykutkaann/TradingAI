@@ -39,10 +39,15 @@ namespace TradingAI.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? PublishedAt { get; set; }
 
-        public decimal? PriceAfter24h { get; set; }
-        public decimal? PriceAfter7d { get; set; }
-        public AnalysisOutcome? Outcome { get; set; }   // Hit TP, Hit SL, Neutral
+
+        public bool TakeProfit1Hit { get; set; }
+        public bool TakeProfit2Hit { get; set; }
+        public bool StopLossHit { get; set; }
+        public AnalysisOutcome Outcome { get; set; } = AnalysisOutcome.Pending;   // Hit TP, Hit SL, Neutral
         public DateTime? OutcomeCheckedAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+
+        public decimal? ResolvedPrice { get; set; }
 
         // Navigation
         public User User { get; set; }
