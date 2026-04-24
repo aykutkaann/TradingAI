@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Extensions;
 using TradingAI.Application.Auth.DTOs;
+using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.Models;
+using TradingAI.Application.Features.Analyses.Queries.GetPublicFeed;
 using TradingAI.Application.Features.UserFollow.Commands.FollowUser;
 using TradingAI.Application.Features.UserFollow.Commands.UnfollowUser;
 using TradingAI.Application.Features.UserFollow.DTOs;
 using TradingAI.Application.Features.UserFollow.Queries.GetFollowers;
 using TradingAI.Application.Features.UserFollow.Queries.GetFollowing;
-using TradingAI.Application.Features.Users.Commands.UpdateProfile;
-using TradingAI.Application.Features.Users.GetCurrentUser;
+using TradingAI.Application.Features.Users.DTOs;
 using TradingAI.Application.Features.Users.GetPublicProfile;
 
 
@@ -65,6 +66,19 @@ namespace TradingAI.API.Controllers
             return Ok(result);
         }
 
+
+        //GET public profile
+
+        [HttpGet("{id:guid}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PublicProfileDto>> GetPublicProfile(Guid id, CancellationToken ct)
+        {
+            Guid? currentUserId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : null;
+
+            var result = await mediator.Send(new GetPublicProfileQuery(id, currentUserId), ct);
+
+            return Ok(result);
+        }
 
     }
 }

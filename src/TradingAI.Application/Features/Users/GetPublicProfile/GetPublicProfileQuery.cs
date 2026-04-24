@@ -1,11 +1,9 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TradingAI.Application.Auth.DTOs;
+
+using TradingAI.Application.Features.Users.DTOs;
 
 namespace TradingAI.Application.Features.Users.GetPublicProfile
 {
 
-    public record GetPublicProfileQuery(string UserName) : IRequest<PublicProfileDto>;
+    public record GetPublicProfileQuery(Guid UserId, Guid? CurrentUserId) : IRequest<PublicProfileDto>;
 }
