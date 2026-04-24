@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TradingAI.Application.Common.Interfaces;
+using TradingAI.Application.Common.RateLimiting;
 using TradingAI.Infrastructure.Ai;
 using TradingAI.Infrastructure.AI;
 using TradingAI.Infrastructure.Auth;
@@ -51,9 +52,12 @@ namespace TradingAI.Infrastructure
 
             //Outcome
             services.AddSingleton<IOutcomeEvaluator, OutcomeEvaluator>();
+            
             //Entitlements
-
             services.AddScoped<IEntitlementService, EntitlementService>();
+
+            //UsageCounter
+            services.AddScoped<IUsageCounter, UsageCounter>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>

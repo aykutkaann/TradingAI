@@ -4,7 +4,6 @@ using System.Text.Json;
 using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Application.Common.Models;
-using TradingAI.Application.Features.Analyses.Commands.AnalyzeImage;
 using TradingAI.Application.Features.Analyses.Dtos;
 using TradingAI.Domain.Entities;
 using TradingAI.Domain.Enums;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TradingAI.Application.Common.RateLimiting;
 using TradingAI.Application.Features.Analyses.Dtos;
 
 namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
@@ -13,7 +14,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeImage
             string ImageMediaType,
             string AssetPair,     // e.g. "BTC/USDT" — free text from user
             string TimeFrame,     // "1H", "4H", "1D" etc.
-            string? UserPrompt) : IRequest<AnalysisDto>;
+            string? UserPrompt) : IRequest<AnalysisDto>, IUsesDailyAnalysisSlot;
             
     
 }

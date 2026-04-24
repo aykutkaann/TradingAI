@@ -3,6 +3,7 @@ using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using TradingAI.API.Middleware;
+using TradingAI.API.Services;
 using TradingAI.Application.Common.Interfaces;
 using TradingAI.Infrastructure;
 using TradingAI.Infrastructure.AI;
@@ -35,6 +36,10 @@ builder.Services.Configure<OutcomeTrackingSettings>(builder.Configuration.GetSec
 
 builder.Services.AddSingleton<IOutcomeEvaluator, OutcomeEvaluator>();
 builder.Services.AddHostedService<OutcomeTrackingWorker>();
+
+//CurrentUser 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Health checks
 builder.Services.AddHealthChecks()

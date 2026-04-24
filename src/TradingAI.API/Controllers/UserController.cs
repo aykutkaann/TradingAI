@@ -93,13 +93,15 @@ namespace TradingAI.API.Controllers
         }
 
         //GET platform stats
-        [HttpGet]
+        [HttpGet("stats")]
         [AllowAnonymous]
         public async Task<ActionResult<PlatformStatsDto>> GetPlatformStats(CancellationToken ct)
         {
             var result = await mediator.Send(new GetPlatformStatsQuery(), ct);
             return Ok(result);
         }
+
+
 
 
 

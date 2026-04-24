@@ -10,10 +10,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Users\Queries\" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
