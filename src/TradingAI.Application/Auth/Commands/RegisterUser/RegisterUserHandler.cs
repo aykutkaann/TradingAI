@@ -30,7 +30,7 @@ namespace TradingAI.Application.Auth.Commands.RegisterUser
                 UserName = request.UserName,
                 Email = request.Email,
                 PasswordHash = hashedPassword,
-                Role = UserRole.Free,
+                Role = UserRole.User,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -42,6 +42,20 @@ namespace TradingAI.Application.Auth.Commands.RegisterUser
             user.RefreshTokens.Add(refreshToken);
 
             db.Users.Add(user);
+
+
+
+            db.UserSubscriptions.Add(new UserSubscription
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Tier = SubscriptionTier.Free,
+                StartedAt = DateTime.UtcNow,
+                ExpiresAt =null,
+                IsActive = true,
+
+            });
+
             await db.SaveChangesAsync(ct);
 
             return new AuthResponse(

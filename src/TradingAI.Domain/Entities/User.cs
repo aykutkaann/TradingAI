@@ -30,6 +30,7 @@ namespace TradingAI.Domain.Entities
         public ICollection<Analysis> Analyses { get; set; } = new HashSet<Analysis>();
         public ICollection<UserFollow> Followers { get; set; } = new HashSet<UserFollow>();
         public ICollection<UserFollow> Following { get; set; } = new HashSet<UserFollow>();
+        public ICollection<UserSubscription> Subscriptions { get; set; } = new HashSet<UserSubscription>();
 
 
 

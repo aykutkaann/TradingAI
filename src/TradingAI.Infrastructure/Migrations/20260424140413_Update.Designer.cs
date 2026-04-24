@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TradingAI.Infrastructure;
@@ -11,9 +12,11 @@ using TradingAI.Infrastructure;
 namespace TradingAI.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424140413_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,65 +297,6 @@ namespace TradingAI.Infrastructure.Migrations
                     b.ToTable("refresh_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("TradingAI.Domain.Entities.SubscriptionPlan", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("CanAccessLeaderBoard")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("CanSeePlatformStats")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("CanUseAssetAnalysis")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DailyAnalysisLimit")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DailyPublishLimit")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("MaxImageSizeMb")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<decimal>("PriceMonthlyUsd")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<decimal>("PriceWeeklyUsd")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<decimal>("PriceYearlyUsd")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<string>("Tier")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Tier")
-                        .IsUnique();
-
-                    b.ToTable("subscription_plans", (string)null);
-                });
-
             modelBuilder.Entity("TradingAI.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -434,44 +378,6 @@ namespace TradingAI.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("user_follows", (string)null);
-                });
-
-            modelBuilder.Entity("TradingAI.Domain.Entities.UserSubscription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("PaymentReference")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Tier")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "IsActive");
-
-                    b.ToTable("user_subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("TradingAI.Domain.Entities.WatchListItem", b =>
@@ -596,17 +502,6 @@ namespace TradingAI.Infrastructure.Migrations
                     b.Navigation("Following");
                 });
 
-            modelBuilder.Entity("TradingAI.Domain.Entities.UserSubscription", b =>
-                {
-                    b.HasOne("TradingAI.Domain.Entities.User", "User")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TradingAI.Domain.Entities.WatchListItem", b =>
                 {
                     b.HasOne("TradingAI.Domain.Entities.Asset", "Asset")
@@ -642,8 +537,6 @@ namespace TradingAI.Infrastructure.Migrations
                     b.Navigation("Following");
 
                     b.Navigation("RefreshTokens");
-
-                    b.Navigation("Subscriptions");
 
                     b.Navigation("WathcLists");
                 });

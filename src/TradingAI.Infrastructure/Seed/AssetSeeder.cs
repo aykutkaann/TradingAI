@@ -46,6 +46,9 @@ public static class AssetSeeder
             new Asset { Id = Guid.NewGuid(), Symbol = "WTI", Name = "WTI Crude Oil", Pair = "WTI/USD", DataSourceId = "WTI/USD", Type = AssetType.Commodity, CreatedAt = now },
         });
 
+
+
+
         await db.Assets.AddRangeAsync(assets);
         await db.SaveChangesAsync(default);
     }

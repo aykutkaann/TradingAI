@@ -17,6 +17,10 @@ namespace TradingAI.Infrastructure
         public DbSet<AnalysisLike> AnalysisLikes => Set<AnalysisLike>();
         public DbSet<AnalysisComment> AnalysisComments => Set<AnalysisComment>();
 
+        public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+        public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+
+
 
 
 

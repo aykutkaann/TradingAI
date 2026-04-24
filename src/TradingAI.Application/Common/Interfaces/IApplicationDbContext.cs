@@ -14,8 +14,12 @@ namespace TradingAI.Application.Common.Interfaces
         DbSet<AnalysisLike> AnalysisLikes { get; }
         DbSet<AnalysisComment> AnalysisComments { get; }
 
+        DbSet<SubscriptionPlan> SubscriptionPlans { get; }
 
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+        DbSet<UserSubscription> UserSubscriptions { get; }
+    
+
+            Task<int> SaveChangesAsync(CancellationToken cancellationToken);
             
         
 

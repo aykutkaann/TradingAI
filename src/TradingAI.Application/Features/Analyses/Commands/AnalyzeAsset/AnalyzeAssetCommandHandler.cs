@@ -30,7 +30,7 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
                 user.LastAnalysisResetDate = now;
             }
 
-            var cap = SubscriptionLimits.MonthlyAnalysisCap(user.Role);
+            var cap = 5;
             if(user.AnalysisCountThisMonth >= cap)
                 throw new ConflictException($"Monthly analysis limit ({cap}) reached for {user.Role} plan.");
 

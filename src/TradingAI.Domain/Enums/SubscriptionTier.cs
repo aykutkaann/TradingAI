@@ -4,12 +4,10 @@ using System.Text;
 
 namespace TradingAI.Domain.Enums
 {
-    public enum UserRole
+    public enum SubscriptionTier
     {
-        User = 0,
-        Admin = 1,
-        Moderator = 2
-
+        Free = 0,
+        Pro = 1,
+        Premium = 2
     }
-
 }
