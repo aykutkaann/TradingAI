@@ -17,6 +17,8 @@ namespace TradingAI.Application.Common.Interfaces
         DbSet<SubscriptionPlan> SubscriptionPlans { get; }
 
         DbSet<UserSubscription> UserSubscriptions { get; }
+
+        DbSet<Notification> Notifications { get; }
     
 
             Task<int> SaveChangesAsync(CancellationToken cancellationToken);

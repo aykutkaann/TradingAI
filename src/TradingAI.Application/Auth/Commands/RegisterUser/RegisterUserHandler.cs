@@ -9,7 +9,7 @@ using TradingAI.Domain.Enums;
 namespace TradingAI.Application.Auth.Commands.RegisterUser
 {
     public class RegisterUserHandler(
-        IApplicationDbContext db, IPasswordHasher hasher, IJwtService jwt) :IRequestHandler<RegisterUserCommand, AuthResponse>
+        IApplicationDbContext db, IPasswordHasher hasher, IJwtService jwt, IEmailService email) :IRequestHandler<RegisterUserCommand, AuthResponse>
     {
         public async Task<AuthResponse> Handle(RegisterUserCommand request, CancellationToken ct)
         {
@@ -59,6 +59,16 @@ namespace TradingAI.Application.Auth.Commands.RegisterUser
             });
 
             await db.SaveChangesAsync(ct);
+
+            var subject = "Welcome to TradingAI!";
+            var htmlBody = $@"
+                <h1>Welcome, {user.UserName}!</h1>
+                <p>Your TradingAI account has been created successfully.</p>
+                <p>You're on the <strong>Free</strong> plan with 3 daily analyses.
+                   Upgrade anytime from your dashboard.</p>
+                <p>Happy trading,<br/>The TradingAI Team</p>";
+
+            await email.SendAsync(user.Email, subject, htmlBody, ct);
 
             return new AuthResponse(
                 accessToken,

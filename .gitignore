@@ -7,6 +7,9 @@
 *.sln.docstates
 *.suo
 
+
+appsettings.development.json
+appsettings.production.json
 ## [Visual Studio Code]
 .vscode/
 !.vscode/settings.json

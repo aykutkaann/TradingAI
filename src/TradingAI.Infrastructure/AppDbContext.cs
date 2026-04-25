@@ -20,6 +20,8 @@ namespace TradingAI.Infrastructure
         public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
         public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
 
+        public DbSet<Notification> Notifications => Set<Notification>();
+
 
 
 
