@@ -74,6 +74,7 @@ namespace TradingAI.Infrastructure.Seed
             await db.SaveChangesAsync(ct);
 
 
+            var freePlanId = plans.First(p => p.Tier == Domain.Enums.SubscriptionTier.Free).Id;
 
             var userWithoutSub = await db.Users.Where(u => !db.UserSubscriptions.Any(s => s.UserId == u.Id)).ToListAsync(ct);
 
@@ -83,6 +84,7 @@ namespace TradingAI.Infrastructure.Seed
                 {
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
+                    PlanId = freePlanId,
                     Tier = Domain.Enums.SubscriptionTier.Free,
                     StartedAt = DateTime.UtcNow,
                     IsActive = true,

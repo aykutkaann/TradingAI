@@ -43,12 +43,14 @@ namespace TradingAI.Application.Auth.Commands.RegisterUser
 
             db.Users.Add(user);
 
-
+            var freePlan = await db.SubscriptionPlans.FirstOrDefaultAsync(p => p.Tier == SubscriptionTier.Free && p.IsActive, ct)
+                ?? throw new InvalidOperationException("Free plan not seeded.");
 
             db.UserSubscriptions.Add(new UserSubscription
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
+                PlanId = freePlan.Id,
                 Tier = SubscriptionTier.Free,
                 StartedAt = DateTime.UtcNow,
                 ExpiresAt =null,

@@ -14,6 +14,7 @@ using TradingAI.Infrastructure.Ai;
 using TradingAI.Infrastructure.AI;
 using TradingAI.Infrastructure.Auth;
 using TradingAI.Infrastructure.Cache;
+using TradingAI.Infrastructure.Email;
 using TradingAI.Infrastructure.Identity;
 using TradingAI.Infrastructure.MarketData;
 using TradingAI.Infrastructure.Storage;
@@ -60,6 +61,10 @@ namespace TradingAI.Infrastructure
 
             //UsageCounter
             services.AddScoped<IUsageCounter, UsageCounter>();
+
+            //Email
+            services.Configure<EmailSettings>(config.GetSection("Email"));
+            services.AddScoped<IEmailService, SmtpEmailService>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>
