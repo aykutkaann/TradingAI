@@ -63,6 +63,7 @@ namespace TradingAI.Infrastructure.OutcomeTracking
             var market = scope.ServiceProvider.GetRequiredService<IMarketDataService>();
             var evaluator = scope.ServiceProvider.GetRequiredService<IOutcomeEvaluator>();
             var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
+            var email = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
             var batch = await db.Analyses.Where(a => a.Outcome == Domain.Enums.AnalysisOutcome.Pending)
                 .OrderBy(a => a.OutcomeCheckedAt ?? DateTime.MinValue)
@@ -110,6 +111,28 @@ namespace TradingAI.Infrastructure.OutcomeTracking
                             assetPair: analysis.Pair,
                             outcome: result.Outcome,
                             ct);
+
+                        // Email only on Win — celebrate hits, don't rub losses in.
+                        if (result.Outcome == AnalysisOutcome.Win)
+                        {
+                            var recipientEmail = await db.Users
+                                .Where(u => u.Id == analysis.UserId)
+                                .Select(u => u.Email)
+                                .FirstOrDefaultAsync(ct);
+
+                            if (!string.IsNullOrWhiteSpace(recipientEmail))
+                            {
+                                var subject = $"🎯 Your {analysis.Pair} analysis hit take profit!";
+                                var htmlBody = $@"
+                                    <h1>Nice call! 🎯</h1>
+                                    <p>Your <strong>{analysis.Pair}</strong> ({analysis.TimeFrame}) analysis just hit take profit.</p>
+                                    <p>Resolved price: <strong>{analysis.ResolvedPrice}</strong></p>
+                                    <p>Keep it up — share the win on TradingAI to earn followers.</p>
+                                    <p>— The TradingAI Team</p>";
+
+                                await email.SendAsync(recipientEmail, subject, htmlBody, ct);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
