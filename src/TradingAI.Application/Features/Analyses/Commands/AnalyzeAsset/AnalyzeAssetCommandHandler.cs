@@ -63,6 +63,8 @@ namespace TradingAI.Application.Features.Analyses.Commands.AnalyzeAsset
             };
 
             db.Analyses.Add(analysis);
+
+            
             await db.SaveChangesAsync(cancellationToken);
 
             return MapToDto(analysis, user, asset);

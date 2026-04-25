@@ -62,6 +62,7 @@ namespace TradingAI.Infrastructure.OutcomeTracking
             var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
             var market = scope.ServiceProvider.GetRequiredService<IMarketDataService>();
             var evaluator = scope.ServiceProvider.GetRequiredService<IOutcomeEvaluator>();
+            var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
             var batch = await db.Analyses.Where(a => a.Outcome == Domain.Enums.AnalysisOutcome.Pending)
                 .OrderBy(a => a.OutcomeCheckedAt ?? DateTime.MinValue)
@@ -102,6 +103,13 @@ namespace TradingAI.Infrastructure.OutcomeTracking
                         analysis.ResolvedPrice = result.ResolvedPrice;
                         analysis.ResolvedAt = result.ResolvedAt;
                         resolvedCount++;
+
+                        await notifications.NotifyAnalysisResolvedAsync(
+                            recipientUserId: analysis.UserId,
+                            analysisId: analysis.Id,
+                            assetPair: analysis.Pair,
+                            outcome: result.Outcome,
+                            ct);
                     }
                 }
                 catch (Exception ex)

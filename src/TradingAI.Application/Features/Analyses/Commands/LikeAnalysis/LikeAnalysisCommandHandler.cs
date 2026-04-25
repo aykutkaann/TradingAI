@@ -1,11 +1,11 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TradingAI.Application.Common.Exceptions;
 using TradingAI.Application.Common.Interfaces;
 
 namespace TradingAI.Application.Features.Analyses.Commands.LikeAnalysis
 {
-    public class LikeAnalysisCommandHandler(IApplicationDbContext db) : IRequestHandler<LikeAnalysisCommand , Unit>
+    public class LikeAnalysisCommandHandler(IApplicationDbContext db, INotificationService notifications) : IRequestHandler<LikeAnalysisCommand, Unit>
     {
         public async Task<Unit> Handle(LikeAnalysisCommand request, CancellationToken ct)
         {
@@ -23,6 +23,12 @@ namespace TradingAI.Application.Features.Analyses.Commands.LikeAnalysis
 
             if (alreadyLiked) return Unit.Value;
 
+            // Load liker for the notification message
+            var liker = await db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == request.CurrentUserId, ct)
+                ?? throw new UnauthorizedException("Invalid credentials.");
+
             db.AnalysisLikes.Add(new Domain.Entities.AnalysisLike
             {
                 Id = Guid.NewGuid(),
@@ -31,16 +37,21 @@ namespace TradingAI.Application.Features.Analyses.Commands.LikeAnalysis
                 CreatedAt = DateTime.UtcNow
             });
 
-            try 
+            await notifications.NotifyNewLikeAsync(
+                recipientUserId: analysis.UserId,
+                likerUserId: request.CurrentUserId,
+                likerUserName: liker.DisplayName ?? liker.UserName,
+                analysisId: analysis.Id,
+                ct);
+
+            try
             {
                 await db.SaveChangesAsync(ct);
             }
             catch (DbUpdateException)
             {
-
             }
             return Unit.Value;
-
         }
     }
 }

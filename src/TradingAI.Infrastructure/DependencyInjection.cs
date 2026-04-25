@@ -17,6 +17,7 @@ using TradingAI.Infrastructure.Cache;
 using TradingAI.Infrastructure.Email;
 using TradingAI.Infrastructure.Identity;
 using TradingAI.Infrastructure.MarketData;
+using TradingAI.Infrastructure.Notifications;
 using TradingAI.Infrastructure.Storage;
 using TradingAI.Infrastructure.Subscipritons;
 
@@ -65,6 +66,9 @@ namespace TradingAI.Infrastructure
             //Email
             services.Configure<EmailSettings>(config.GetSection("Email"));
             services.AddScoped<IEmailService, SmtpEmailService>();
+
+            //Notifications
+            services.AddScoped<INotificationService, NotificationService>();
 
 
             services.AddHttpClient<CoinGeckoClient>(c =>

@@ -7,7 +7,7 @@ using TradingAI.Domain.Entities;
 
 namespace TradingAI.Application.Features.Comments.Commands.CreateComment
 {
-    public class CreateCommentCommandHandler(IApplicationDbContext db) : IRequestHandler<CreateCommentCommand, CommentDto>
+    public class CreateCommentCommandHandler(IApplicationDbContext db, INotificationService notifications) : IRequestHandler<CreateCommentCommand, CommentDto>
     {
         public async Task<CommentDto> Handle(CreateCommentCommand request, CancellationToken ct)
         {
@@ -34,6 +34,14 @@ namespace TradingAI.Application.Features.Comments.Commands.CreateComment
             };
 
             db.AnalysisComments.Add(comment);
+
+            await notifications.NotifyNewCommentAsync(
+                recipientUserId: analysis.UserId,
+                commenterUserId: request.CurrentUserId,
+                commenterUserName: user.DisplayName ?? user.UserName,
+                analysisId: analysis.Id,
+                ct);
+
             await db.SaveChangesAsync(ct);
 
             return new CommentDto(
