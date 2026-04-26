@@ -8,7 +8,6 @@ namespace TradingAI.Infrastructure.Resilience;
 
 public static class HttpPolicies
 {
-    // Retry policy factory. Emits log entries on retry.
     public static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(string providerName, ILoggerFactory loggerFactory, TimeSpan[] delays, HttpRequestMessage? request = null)
     {
         var logger = loggerFactory.CreateLogger("HttpPolicies");
@@ -27,7 +26,6 @@ public static class HttpPolicies
             });
     }
 
-    // Circuit breaker factory. Emits log entries when circuit state changes.
     public static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(string providerName, ILoggerFactory loggerFactory, int exceptionsAllowedBeforeBreaking, TimeSpan durationOfBreak, HttpRequestMessage? request = null)
     {
         var logger = loggerFactory.CreateLogger("HttpPolicies");
@@ -48,13 +46,11 @@ public static class HttpPolicies
                 onHalfOpen: () => logger.LogInformation("Circuit for {Provider} is half-open", providerName));
     }
 
-    // Timeout policy factory. Logs timeouts.
     public static IAsyncPolicy<HttpResponseMessage> GetTimeoutPolicy(TimeSpan timeout, ILoggerFactory loggerFactory, string providerName, HttpRequestMessage? request = null)
     {
         var logger = loggerFactory.CreateLogger("HttpPolicies");
         var policy = Policy.TimeoutAsync<HttpResponseMessage>(timeout, TimeoutStrategy.Optimistic)
             .WithPolicyKey($"Timeout-{providerName}");
-        // We can't easily hook into the optimistic timeout's onTimeout callback here, so return the policy as-is.
         return policy;
     }
 }

@@ -119,8 +119,7 @@ public class GrokAiAnalysisService : IAiAnalysisService
         sb.AppendLine($"Analyze {assetPair} on the {timeframe} timeframe.");
         sb.AppendLine($"Current price: {currentPrice}");
 
-        // Pre-computed context so the AI doesn't have to do this math from raw OHLC.
-        // This is the single biggest variance reducer between runs.
+      
         if (candles.Count > 0)
         {
             var ordered = candles.OrderBy(c => c.Timestamp).ToList();

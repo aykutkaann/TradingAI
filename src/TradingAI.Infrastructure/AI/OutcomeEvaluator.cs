@@ -41,10 +41,7 @@ namespace TradingAI.Infrastructure.AI
             {
                 if (isBullish)
                 {
-                    // Intrabar ambiguity: if both SL and TP hit in the same candle,
-                    // we can't tell from OHLC which happened first.
-                    // Conservative rule: SL wins. Do NOT "fix" this — it keeps the
-                    // win rate honest.
+          
                     if (analysis.StopLoss.HasValue && candle.Low <= analysis.StopLoss.Value)
                     {
                         slHit = true;

@@ -17,8 +17,7 @@ public class MarketDataService : IMarketDataService
     private static readonly TimeSpan LivePriceTtl = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan HistoryTtl   = TimeSpan.FromMinutes(5);
 
-    // Worker calls this for outcome tracking. We pull a generous slice of
-    // recent history so even older analyses get evaluated against enough candles.
+
     private const int CandleFetchLimit = 500;
 
     public MarketDataService(CoinGeckoClient coinGecko, TwelveDataClient twelveData, ICacheService cache, IApplicationDbContext db)
@@ -35,8 +34,7 @@ public class MarketDataService : IMarketDataService
         var cached = await _cache.GetAsync<PriceData>(key, ct);
         if (cached is not null) return cached;
 
-        // Protect callers from external provider hangs/failures: use short per-call timeouts
-        // and treat failures as missing price (null). Preserve cancellation if caller cancels.
+
         var fresh = asset.Type switch
         {
             AssetType.Crypto => await SafeSingleCall(ct, TimeSpan.FromSeconds(2), ct2 => _coinGecko.GetLivePriceAsync(asset, ct2)),
@@ -50,7 +48,6 @@ public class MarketDataService : IMarketDataService
         return fresh;
     }
 
-    // Helper to run a single-item provider call with a short timeout and safe error handling.
     private static async Task<PriceData?> SafeSingleCall(CancellationToken ambientCt, TimeSpan timeout, Func<CancellationToken, Task<PriceData?>> call)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ambientCt);

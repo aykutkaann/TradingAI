@@ -35,11 +35,7 @@ namespace TradingAI.Infrastructure
             services.AddDbContext<AppDbContext>(opt =>
             {
                 opt.UseNpgsql(config.GetConnectionString("DefaultConnection"));
-                // Don't crash on boot if the code model has drifted from the
-                // applied migrations. We still see the warning in logs so the
-                // drift is visible — just not fatal. Run
-                //   dotnet ef migrations add <Name> --project src/TradingAI.Infrastructure --startup-project src/TradingAI.API
-                // to capture the diff and stop seeing the warning.
+     
                 opt.ConfigureWarnings(w =>
                     w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
@@ -55,12 +51,9 @@ namespace TradingAI.Infrastructure
 
             // Market data
             services.Configure<TwelveDataSettings>(config.GetSection("TwelveData"));
-            // TwelveData: slightly more generous timeout and retry budget
             services.AddHttpClient<TwelveDataClient>(c =>
             {
-                // Force HTTP/1.1 — some local antivirus / VPN software corrupts
-                // ALPN during HTTP/2 upgrade, producing "corrupted TLS frame" errors.
-                // Curl works because curl defaults to HTTP/1.1; .NET defaults to HTTP/2.
+     
                 c.DefaultRequestVersion = System.Net.HttpVersion.Version11;
                 c.DefaultVersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionOrLower;
             })

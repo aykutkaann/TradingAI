@@ -29,10 +29,7 @@ public class CoinGeckoClient
         var ids = string.Join(",", assets.Select(a => a.DataSourceId));
         var url = $"/api/v3/coins/markets?vs_currency=usd&ids={ids}";
 
-        // Some remote HTTPS endpoints may have TLS/HTTP2 characteristics that cause
-        // authentication/frame errors when using the default HTTP version. Force
-        // HTTP/1.1 for this request and return an empty result on network errors
-        // instead of letting exceptions bubble up and crash the API pipeline.
+  
         List<CoinGeckoMarketItem>? response;
         try
         {
@@ -84,7 +81,6 @@ public class CoinGeckoClient
 
     public async Task<IReadOnlyList<OhlcCandle>> GetHistoricalDataAsync(Asset asset, string interval, int limit, CancellationToken ct)
     {
-        // CoinGecko OHLC endpoint accepts days (1,7,14,30,90,180,365,max). Map "limit" to days.
         var days = interval switch
         {
             "5m" or "15m" or "1H" => 1,
@@ -110,7 +106,6 @@ public class CoinGeckoClient
         return candles.TakeLast(limit).ToList();
     }
 
-    // --- Internal response DTOs ---
 
     private sealed class CoinGeckoMarketItem
     {

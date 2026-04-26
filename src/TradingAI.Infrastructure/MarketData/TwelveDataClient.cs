@@ -47,7 +47,6 @@ public class TwelveDataClient
 
     public async Task<IReadOnlyList<PriceData>> GetBatchPricesAsync(IReadOnlyList<Asset> assets, CancellationToken ct)
     {
-        // Twelve Data supports comma-separated symbols on /quote — returns a dictionary keyed by symbol
         if (assets.Count == 0) return Array.Empty<PriceData>();
         if (assets.Count == 1)
         {
