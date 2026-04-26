@@ -18,6 +18,14 @@ namespace TradingAI.Application.Common.RateLimiting
                     .CountAsync(ct);
         }
 
+        public Task<int> CountAnalysesLifetimeAsync(Guid userId, CancellationToken ct = default)
+        {
+            return db.Analyses
+                    .AsNoTracking()
+                    .Where(a => a.UserId == userId)
+                    .CountAsync(ct);
+        }
+
         public  Task<int> CountPublishesTodayAsync(Guid userId, CancellationToken ct = default)
         {
 

@@ -25,6 +25,12 @@ public class GrokAiAnalysisService : IAiAnalysisService
     private const string SystemPrompt = """
         You are an expert technical analyst reviewing trading charts and price data.
 
+        BIAS RULES — read carefully:
+        - Default to the dominant trend visible in the provided data. Higher-highs / higher-lows = Bullish; lower-highs / lower-lows = Bearish.
+        - Do NOT call a reversal unless there is an explicit, clearly-formed pattern (engulfing candle at a key level, confirmed double top/bottom, broken trendline with retest, etc.).
+        - When the trend is ambiguous, mixed, or you are not confident, return "Neutral". It is better to be Neutral than to flip-flop.
+        - Avoid contrarian "looks overbought, must reverse" calls without a structural reason.
+
         TRADE LEVEL RULES — you MUST follow these:
         - If trendDirection is "Bullish" (long bias):
             * stopLoss MUST be LOWER than suggestedEntry
@@ -112,6 +118,31 @@ public class GrokAiAnalysisService : IAiAnalysisService
         var sb = new StringBuilder();
         sb.AppendLine($"Analyze {assetPair} on the {timeframe} timeframe.");
         sb.AppendLine($"Current price: {currentPrice}");
+
+        // Pre-computed context so the AI doesn't have to do this math from raw OHLC.
+        // This is the single biggest variance reducer between runs.
+        if (candles.Count > 0)
+        {
+            var ordered = candles.OrderBy(c => c.Timestamp).ToList();
+            var first = ordered.First();
+            var last = ordered.Last();
+            var recentHigh = ordered.Max(c => c.High);
+            var recentLow = ordered.Min(c => c.Low);
+            var firstClose = first.Close;
+            var lastClose = last.Close;
+            var pctChange = firstClose == 0 ? 0 : (lastClose - firstClose) / firstClose * 100m;
+            var pctFromHigh = recentHigh == 0 ? 0 : (currentPrice - recentHigh) / recentHigh * 100m;
+            var pctFromLow = recentLow == 0 ? 0 : (currentPrice - recentLow) / recentLow * 100m;
+
+            sb.AppendLine();
+            sb.AppendLine($"Data window: {ordered.Count} candles from {first.Timestamp:yyyy-MM-dd HH:mm} to {last.Timestamp:yyyy-MM-dd HH:mm} UTC.");
+            sb.AppendLine($"Recent high (in this window): {recentHigh}");
+            sb.AppendLine($"Recent low  (in this window): {recentLow}");
+            sb.AppendLine($"Move across window: {pctChange:F2}% (close-to-close).");
+            sb.AppendLine($"Current price is {pctFromHigh:F2}% from recent high and {pctFromLow:F2}% from recent low.");
+            sb.AppendLine();
+        }
+
         sb.AppendLine("Recent OHLC candles (oldest first):");
         foreach (var c in candles)
         {
@@ -132,7 +163,8 @@ public class GrokAiAnalysisService : IAiAnalysisService
     {
         var options = new ChatCompletionOptions
         {
-            Temperature = 0.3f,
+            // Deterministic-as-possible. Same input should give the same output across runs.
+            Temperature = 0f,
             MaxOutputTokenCount = _settings.MaxTokens
         };
 

@@ -23,7 +23,14 @@ public class RateLimitBehavior<TRequest, TResponse>(
         {
             var userId = currentUser.RequireUserId();   // pipeline only runs on authed commands
             var ent = await entitlements.GetAsync(userId, ct);
-            var used = await counter.CountAnalysesTodayAsync(userId, ct);
+
+            // Free tier: 3 analyses TOTAL (lifetime). Once consumed, the user
+            // must upgrade — no daily reset. Paid tiers use the daily window.
+            var isFree = ent.Tier == Domain.Enums.SubscriptionTier.Free;
+            var used = isFree
+                ? await counter.CountAnalysesLifetimeAsync(userId, ct)
+                : await counter.CountAnalysesTodayAsync(userId, ct);
+
             if (used >= ent.DailyAnalysisLimit)
                 throw new RateLimitExceededException("analysis", used, ent.DailyAnalysisLimit);
         }

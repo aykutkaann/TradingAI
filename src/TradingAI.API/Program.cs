@@ -1,5 +1,7 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -12,6 +14,14 @@ using TradingAI.Infrastructure.AI;
 using TradingAI.Infrastructure.OutcomeTracking;
 using TradingAI.Infrastructure.Seed;
 using TradingAI.Infrastructure.Storage;
+
+// Npgsql 6+ rejects DateTime values with Kind != Utc when writing to
+// `timestamp with time zone` columns. We have a few code paths (outcome
+// evaluator's resolvedAt, candle timestamps from market-data providers)
+// that produce DateTimeKind.Unspecified. Rather than audit every site,
+// flip the legacy switch — Npgsql will then treat Unspecified as UTC.
+// See: https://www.npgsql.org/efcore/release-notes/6.0.html#timestamp-rationalization
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,10 +56,25 @@ builder.Services.AddHostedService<OutcomeTrackingWorker>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// Health checks
-builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!)
-    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+// Health checks. Redis is optional in production (Railway free tier has no
+// Redis plugin) — only register it if a connection string is configured.
+var redisConn = builder.Configuration.GetConnectionString("Redis");
+var healthChecks = builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!);
+if (!string.IsNullOrWhiteSpace(redisConn))
+{
+    healthChecks.AddRedis(redisConn);
+}
+
+// Forwarded headers — required behind reverse proxies (Railway, Fly, Nginx)
+// so HttpContext.Request.Scheme reflects the original https:// from the client,
+// not the http:// hop inside the platform's network.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 //CORS
 
@@ -83,11 +108,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// CORS — origins come from configuration so dev and prod can each list
+// the URLs they need. Set "Cors:AllowedOrigins" to a comma-separated list
+// (or as a JSON array in appsettings, or the env var
+//   Cors__AllowedOrigins__0, Cors__AllowedOrigins__1, ...).
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowDevFrontend", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -97,13 +129,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//Seed data
+// Run pending migrations + seed reference data on startup. Idempotent.
+// Wrapped in a separate scope so the DI scope lifetime is correct.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
     await AssetSeeder.SeedAssetAsync(db);
     await PlanSeeder.SeedPlanAsync(db);
 }
+
+// Trust forwarded headers BEFORE any middleware that reads the URL scheme.
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
@@ -113,8 +150,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.UseHttpsRedirection();
-app.UseCors("AllowDevFrontend");
+// HTTPS redirect only in dev. In production the platform (Railway / Fly / Nginx)
+// terminates TLS at the edge and the app receives plain HTTP internally —
+// keeping UseHttpsRedirection on would cause a redirect loop or break the app.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 

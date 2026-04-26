@@ -2,10 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingAI.API.Auth.DTOs;
+using TradingAI.Application.Auth.Commands.ChangePassword;
 using TradingAI.Application.Auth.Commands.LoginUser;
 using TradingAI.Application.Auth.Commands.RefreshToken;
 using TradingAI.Application.Auth.Commands.RegisterUser;
 using TradingAI.Application.Auth.Commands.RevokeToken;
+using TradingAI.API.Extensions;
 using TradingAI.Application.Auth.DTOs;
 
 namespace TradingAI.API.Controllers;
@@ -46,6 +48,20 @@ public class AuthController(IMediator mediator) : ControllerBase
         await mediator.Send(command);
         return NoContent();
     }
+
+    // POST /api/auth/change-password
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequest request, CancellationToken ct)
+    {
+        await mediator.Send(
+            new ChangePasswordCommand(User.GetUserId(), request.CurrentPassword, request.NewPassword),
+            ct);
+        return NoContent();
+    }
+
+    public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 
     private string GetIpAddress()
     {

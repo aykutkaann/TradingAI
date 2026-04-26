@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Net.Http.Json;
+using System.Net;
 using System.Text.Json.Serialization;
 using TradingAI.Application.Common.Models;
 using TradingAI.Domain.Entities;
@@ -28,7 +29,34 @@ public class CoinGeckoClient
         var ids = string.Join(",", assets.Select(a => a.DataSourceId));
         var url = $"/api/v3/coins/markets?vs_currency=usd&ids={ids}";
 
-        var response = await _http.GetFromJsonAsync<List<CoinGeckoMarketItem>>(url, ct);
+        // Some remote HTTPS endpoints may have TLS/HTTP2 characteristics that cause
+        // authentication/frame errors when using the default HTTP version. Force
+        // HTTP/1.1 for this request and return an empty result on network errors
+        // instead of letting exceptions bubble up and crash the API pipeline.
+        List<CoinGeckoMarketItem>? response;
+        try
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Get, url)
+            {
+                Version = HttpVersion.Version11,
+                VersionPolicy = HttpVersionPolicy.RequestVersionOrLower
+            };
+
+            using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            resp.EnsureSuccessStatusCode();
+            response = await resp.Content.ReadFromJsonAsync<List<CoinGeckoMarketItem>>(cancellationToken: ct);
+        }
+        catch (OperationCanceledException)
+        {
+            // Preserve cancellation semantics
+            throw;
+        }
+        catch
+        {
+            // Network/SSL/etc. failures are non-fatal for price lookup — return empty list
+            return Array.Empty<PriceData>();
+        }
+
         if (response is null) return Array.Empty<PriceData>();
 
         // map back using DataSourceId -> Asset

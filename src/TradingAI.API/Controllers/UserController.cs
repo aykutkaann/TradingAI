@@ -11,6 +11,9 @@ using TradingAI.Application.Features.UserFollow.Commands.UnfollowUser;
 using TradingAI.Application.Features.UserFollow.DTOs;
 using TradingAI.Application.Features.UserFollow.Queries.GetFollowers;
 using TradingAI.Application.Features.UserFollow.Queries.GetFollowing;
+using TradingAI.Application.Auth.DTOs;
+using TradingAI.Application.Features.Users.Commands.UpdateProfile;
+using TradingAI.Application.Features.Users.Commands.UploadAvatar;
 using TradingAI.Application.Features.Users.DTOs;
 using TradingAI.Application.Features.Users.GetPublicProfile;
 using TradingAI.Application.Features.Users.GetUserStats;
@@ -25,6 +28,41 @@ namespace TradingAI.API.Controllers
     [Tags("users")]
     public class UserController(ISender mediator) :ControllerBase
     {
+        // PUT /api/users/me — update display name, bio (avatar via separate endpoint)
+        [HttpPut("me")]
+        public async Task<ActionResult<UserDto>> UpdateMe(
+            [FromBody] UpdateMeRequest body, CancellationToken ct)
+        {
+            var userId = User.GetUserId();
+            var result = await mediator.Send(
+                new UpdateProfileCommand(userId, body.DisplayName, body.Bio, AvatarUrl: null), ct);
+            return Ok(result);
+        }
+
+        // POST /api/users/me/avatar — multipart/form-data, field name "File"
+        [HttpPost("me/avatar")]
+        [RequestSizeLimit(2 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 2 * 1024 * 1024)]
+        public async Task<ActionResult<UserDto>> UploadAvatar(
+            [FromForm] AvatarUploadRequest body, CancellationToken ct)
+        {
+            if (body.File is null || body.File.Length == 0)
+                return BadRequest(new { message = "No file uploaded." });
+
+            await using var stream = body.File.OpenReadStream();
+            var result = await mediator.Send(
+                new UploadAvatarCommand(
+                    UserId: User.GetUserId(),
+                    Stream: stream,
+                    FileName: body.File.FileName,
+                    ContentType: body.File.ContentType ?? "application/octet-stream"),
+                ct);
+            return Ok(result);
+        }
+
+        public record UpdateMeRequest(string? DisplayName, string? Bio);
+        public record AvatarUploadRequest(IFormFile? File);
+
         [HttpPost("{id:guid}/follow")]
         public async Task<IActionResult> Follow(Guid id, CancellationToken ct)
         {

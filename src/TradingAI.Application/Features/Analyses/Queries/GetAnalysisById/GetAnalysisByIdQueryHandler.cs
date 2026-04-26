@@ -18,6 +18,8 @@ namespace TradingAI.Application.Features.Analyses.Queries.GetAnalysisById
                 .AsNoTracking()
                 .Include(a => a.User)
                 .Include(a => a.Asset)          // null for image uploads — that's fine, EF handles it
+                .Include(a => a.Likes)          // needed so AnalysisMapper can compute IsLikedByMe + LikeCount
+                .Include(a => a.Comments)       // needed for CommentCount
                 .FirstOrDefaultAsync(a => a.Id == request.AnalysisId, ct);
 
             if (analysis is null)

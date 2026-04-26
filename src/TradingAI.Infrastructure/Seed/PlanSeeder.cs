@@ -11,70 +11,96 @@ namespace TradingAI.Infrastructure.Seed
     {
         public static async Task SeedPlanAsync(IApplicationDbContext db, CancellationToken ct = default)
         {
-            if (await db.SubscriptionPlans.AnyAsync(ct)) return;
-
+            // Upsert — keep this method runnable on every boot so price/limit
+            // tweaks land without manual SQL. Lookup by Tier (not Id) so the
+            // existing rows keep their PKs and FKs from UserSubscriptions.
             var plans = new List<SubscriptionPlan>
             {
-             //1-FREE
+                // FREE — 3 analyses TOTAL (interpreted as lifetime by RateLimitBehavior).
+                // Once consumed, the user is sent to /plans.
                 new ()
                 {
                     Id = Guid.NewGuid(),
                     Tier = Domain.Enums.SubscriptionTier.Free,
                     Name = "Free",
                     PriceWeeklyUsd = 0,
-                    PriceMonthlyUsd =0,
+                    PriceMonthlyUsd = 0,
                     PriceYearlyUsd = 0,
-                    DailyAnalysisLimit = 3,
+                    DailyAnalysisLimit = 3, // lifetime cap for Free tier
                     DailyPublishLimit = 1,
                     CanUseAssetAnalysis = false,
                     CanAccessLeaderBoard = false,
                     CanSeePlatformStats = true,
                     MaxImageSizeMb = 2
-
                 },
 
-                //PRO
+                // PRO — $3/week or $9.99/month. 30 analyses/day.
                 new ()
                 {
                     Id = Guid.NewGuid(),
                     Tier = Domain.Enums.SubscriptionTier.Pro,
                     Name = "Pro",
-                    PriceWeeklyUsd = 3,
-                    PriceMonthlyUsd = 10,
-                    PriceYearlyUsd = 90,
-                    DailyAnalysisLimit = 50,
+                    PriceWeeklyUsd = 3.00m,
+                    PriceMonthlyUsd = 9.99m,
+                    PriceYearlyUsd = 99.00m,
+                    DailyAnalysisLimit = 30,
                     DailyPublishLimit = 20,
                     CanUseAssetAnalysis = true,
                     CanAccessLeaderBoard = true,
                     CanSeePlatformStats = true,
-                    MaxImageSizeMb = 5
+                    MaxImageSizeMb = 10
                 },
 
-                //PREMIUM
+                // PREMIUM — $29.99/month. Unlimited analyses (large cap so we never block).
                 new ()
                 {
-                   
                     Id = Guid.NewGuid(),
                     Tier = Domain.Enums.SubscriptionTier.Premium,
                     Name = "Premium",
-                    PriceWeeklyUsd = 14,
-                    PriceMonthlyUsd =49,
-                    PriceYearlyUsd = 449,
-                    DailyAnalysisLimit = 500,
+                    PriceWeeklyUsd = 0m, // monthly-only billing for premium
+                    PriceMonthlyUsd = 29.99m,
+                    PriceYearlyUsd = 299.00m,
+                    DailyAnalysisLimit = 9999, // effectively unlimited
                     DailyPublishLimit = 200,
                     CanUseAssetAnalysis = true,
                     CanAccessLeaderBoard = true,
                     CanSeePlatformStats = true,
-                    MaxImageSizeMb = 10
+                    MaxImageSizeMb = 25
                 }
-
             };
 
-            await db.SubscriptionPlans.AddRangeAsync(plans, ct);
+            // Upsert each plan by Tier.
+            var existingByTier = await db.SubscriptionPlans
+                .ToDictionaryAsync(p => p.Tier, ct);
+
+            foreach (var p in plans)
+            {
+                if (existingByTier.TryGetValue(p.Tier, out var existing))
+                {
+                    existing.Name = p.Name;
+                    existing.PriceWeeklyUsd = p.PriceWeeklyUsd;
+                    existing.PriceMonthlyUsd = p.PriceMonthlyUsd;
+                    existing.PriceYearlyUsd = p.PriceYearlyUsd;
+                    existing.DailyAnalysisLimit = p.DailyAnalysisLimit;
+                    existing.DailyPublishLimit = p.DailyPublishLimit;
+                    existing.CanUseAssetAnalysis = p.CanUseAssetAnalysis;
+                    existing.CanAccessLeaderBoard = p.CanAccessLeaderBoard;
+                    existing.CanSeePlatformStats = p.CanSeePlatformStats;
+                    existing.MaxImageSizeMb = p.MaxImageSizeMb;
+                }
+                else
+                {
+                    db.SubscriptionPlans.Add(p);
+                }
+            }
+
             await db.SaveChangesAsync(ct);
 
-
-            var freePlanId = plans.First(p => p.Tier == Domain.Enums.SubscriptionTier.Free).Id;
+            // After upsert, re-read the Free plan id (it may be the existing one).
+            var freePlanId = await db.SubscriptionPlans
+                .Where(p => p.Tier == Domain.Enums.SubscriptionTier.Free)
+                .Select(p => p.Id)
+                .FirstAsync(ct);
 
             var userWithoutSub = await db.Users.Where(u => !db.UserSubscriptions.Any(s => s.UserId == u.Id)).ToListAsync(ct);
 
