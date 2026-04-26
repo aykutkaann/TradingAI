@@ -8,8 +8,18 @@
 *.suo
 
 
-appsettings.development.json
-appsettings.production.json
+# Local app settings — case-insensitive match so capital D is also ignored.
+appsettings.[Dd]evelopment.json
+appsettings.[Pp]roduction.json
+appsettings.[Ll]ocal.json
+**/appsettings.[Dd]evelopment.json
+**/appsettings.[Pp]roduction.json
+
+# Secrets that must NEVER be committed
+**/secrets.json
+**/*.pfx
+**/*.pem
+**/*.key
 ## [Visual Studio Code]
 .vscode/
 !.vscode/settings.json
