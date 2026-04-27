@@ -127,7 +127,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://trading-ai-git-main-aykutkaans-projects.vercel.app")
+        policy.WithOrigins("https://trading-ai-seven.vercel.app/")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
