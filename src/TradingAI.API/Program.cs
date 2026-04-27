@@ -121,14 +121,13 @@ builder.Services.AddSwaggerGen(options =>
 // the URLs they need. Set "Cors:AllowedOrigins" to a comma-separated list
 // (or as a JSON array in appsettings, or the env var
 //   Cors__AllowedOrigins__0, Cors__AllowedOrigins__1, ...).
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? new[] { "http://localhost:5173" };
+
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("https://trading-ai-git-main-aykutkaans-projects.vercel.app", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.WithOrigins("https://trading-ai-git-main-aykutkaans-projects.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
