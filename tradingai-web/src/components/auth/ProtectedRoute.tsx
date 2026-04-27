@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import { Skeleton } from '@/components/ui/skeleton'
 
 /**
  * Gate for routes that require an authenticated user.
@@ -19,7 +20,17 @@ import { useAuthStore } from '@/stores/authStore'
  */
 export function ProtectedRoute() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const isHydrated = useAuthStore((s) => s.isHydrated)
   const location = useLocation()
+
+  // Wait for store to hydrate before deciding to redirect
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <Skeleton className="h-12 w-12 rounded-full" />
+      </div>
+    )
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />

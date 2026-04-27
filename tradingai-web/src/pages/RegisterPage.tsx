@@ -40,12 +40,26 @@ export function RegisterPage() {
   const registerMutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken, data.refreshToken)
-      toast.success(`Welcome, ${data.user.userName}!`)
-      // Use setTimeout to ensure state updates before navigation
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true })
-      }, 100)
+      try {
+        // Validate response structure
+        if (!data.user || !data.accessToken || !data.refreshToken) {
+          console.error('Invalid registration response:', data)
+          toast.error('Registration response invalid. Please try again.')
+          return
+        }
+
+        setAuth(data.user, data.accessToken, data.refreshToken)
+        const displayName = data.user.displayName || data.user.userName
+        toast.success(`Welcome, ${displayName}!`)
+
+        // Use setTimeout to ensure state updates propagate before navigation
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true })
+        }, 100)
+      } catch (error) {
+        console.error('Error processing registration:', error)
+        toast.error('An error occurred. Please try again.')
+      }
     },
     onError: (err: any) => {
       const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Registration failed'

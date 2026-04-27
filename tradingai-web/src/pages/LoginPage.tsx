@@ -46,12 +46,31 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken, data.refreshToken)
-      toast.success(`Welcome back, ${data.user.userName}!`)
-      navigate(from, { replace: true })
+      try {
+        // Validate response structure
+        if (!data.user || !data.accessToken || !data.refreshToken) {
+          console.error('Invalid login response:', data)
+          toast.error('Login response invalid. Please try again.')
+          return
+        }
+
+        setAuth(data.user, data.accessToken, data.refreshToken)
+        const displayName = data.user.displayName || data.user.userName
+        toast.success(`Welcome back, ${displayName}!`)
+
+        // Use setTimeout to ensure state updates propagate before navigation
+        setTimeout(() => {
+          navigate(from, { replace: true })
+        }, 100)
+      } catch (error) {
+        console.error('Error processing login:', error)
+        toast.error('An error occurred. Please try again.')
+      }
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message ?? 'Login failed')
+      const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Login failed'
+      toast.error(errorMsg)
+      console.error('Login error:', err)
     },
   })
 

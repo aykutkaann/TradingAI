@@ -7,6 +7,7 @@ type AuthState = {
   accessToken: string | null
   refreshToken: string | null
   isAuthenticated: boolean
+  isHydrated: boolean
   setAuth: (user: UserDto, accessToken: string, refreshToken: string) => void
   setTokens: (accessToken: string, refreshToken: string) => void
   setUser: (user: UserDto) => void
@@ -20,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isHydrated: false,
 
       setAuth: (user, accessToken, refreshToken) => {
         localStorage.setItem('accessToken', accessToken)
@@ -47,6 +49,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isHydrated = true
+        }
+      },
     }
   )
 )
