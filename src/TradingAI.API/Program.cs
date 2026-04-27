@@ -126,7 +126,7 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("https://trading-ai-git-main-aykutkaans-projects.vercel.app", policy =>
     {
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
