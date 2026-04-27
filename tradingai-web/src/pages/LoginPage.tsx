@@ -46,31 +46,32 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      try {
-        // Validate response structure
-        if (!data.user || !data.accessToken || !data.refreshToken) {
-          console.error('Invalid login response:', data)
-          toast.error('Login response invalid. Please try again.')
-          return
-        }
-
-        setAuth(data.user, data.accessToken, data.refreshToken)
-        const displayName = data.user.displayName || data.user.userName
-        toast.success(`Welcome back, ${displayName}!`)
-
-        // Use setTimeout to ensure state updates propagate before navigation
-        setTimeout(() => {
-          navigate(from, { replace: true })
-        }, 100)
-      } catch (error) {
-        console.error('Error processing login:', error)
-        toast.error('An error occurred. Please try again.')
+      // Validate response structure
+      if (!data?.user || !data?.accessToken || !data?.refreshToken) {
+        console.error('Invalid login response:', data)
+        toast.error('Invalid server response. Please try again.')
+        return
       }
+
+      setAuth(data.user, data.accessToken, data.refreshToken)
+      const displayName = data.user.displayName || data.user.userName
+      toast.success(`Welcome back, ${displayName}!`)
+
+      // Navigate immediately without timeout - state update is synchronous
+      navigate(from, { replace: true })
     },
     onError: (err: any) => {
-      const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Login failed'
-      toast.error(errorMsg)
       console.error('Login error:', err)
+
+      // Handle different error types
+      if (err?.code === 'ECONNABORTED') {
+        toast.error('Request timeout. Check your backend API URL in .env.production')
+      } else if (err?.response?.status === 0) {
+        toast.error('Cannot reach backend API. Check VITE_API_URL setting.')
+      } else {
+        const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Login failed'
+        toast.error(errorMsg)
+      }
     },
   })
 

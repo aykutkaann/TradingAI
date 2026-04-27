@@ -40,31 +40,32 @@ export function RegisterPage() {
   const registerMutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      try {
-        // Validate response structure
-        if (!data.user || !data.accessToken || !data.refreshToken) {
-          console.error('Invalid registration response:', data)
-          toast.error('Registration response invalid. Please try again.')
-          return
-        }
-
-        setAuth(data.user, data.accessToken, data.refreshToken)
-        const displayName = data.user.displayName || data.user.userName
-        toast.success(`Welcome, ${displayName}!`)
-
-        // Use setTimeout to ensure state updates propagate before navigation
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true })
-        }, 100)
-      } catch (error) {
-        console.error('Error processing registration:', error)
-        toast.error('An error occurred. Please try again.')
+      // Validate response structure
+      if (!data?.user || !data?.accessToken || !data?.refreshToken) {
+        console.error('Invalid registration response:', data)
+        toast.error('Invalid server response. Please try again.')
+        return
       }
+
+      setAuth(data.user, data.accessToken, data.refreshToken)
+      const displayName = data.user.displayName || data.user.userName
+      toast.success(`Welcome, ${displayName}!`)
+
+      // Navigate immediately without timeout - state update is synchronous
+      navigate('/dashboard', { replace: true })
     },
     onError: (err: any) => {
-      const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Registration failed'
-      toast.error(errorMsg)
       console.error('Registration error:', err)
+
+      // Handle different error types
+      if (err?.code === 'ECONNABORTED') {
+        toast.error('Request timeout. Check your backend API URL in .env.production')
+      } else if (err?.response?.status === 0) {
+        toast.error('Cannot reach backend API. Check VITE_API_URL setting.')
+      } else {
+        const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Registration failed'
+        toast.error(errorMsg)
+      }
     },
   })
 

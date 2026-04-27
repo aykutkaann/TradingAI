@@ -1,9 +1,20 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 import type { AuthResponse } from '@/types/auth'
 
-const baseURL = import.meta.env.VITE_API_URL || 'https://localhost:7155'
+// In production, VITE_API_URL must be set in .env.production or Vercel environment variables
+const baseURL = import.meta.env.VITE_API_URL
 
-export const api = axios.create({ baseURL })
+if (!baseURL) {
+  console.error(
+    'ERROR: VITE_API_URL is not set! Set it in .env.production or Vercel environment variables.\n' +
+    'Example: VITE_API_URL=https://api.yourdomain.com'
+  )
+}
+
+export const api = axios.create({
+  baseURL: baseURL || 'https://localhost:7155',
+  timeout: 30000, // 30 second timeout
+})
 
 // Attach access token to every request automatically.
 api.interceptors.request.use((config) => {
