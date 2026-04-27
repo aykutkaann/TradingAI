@@ -31,6 +31,8 @@ namespace TradingAI.Infrastructure.Email
                     ? SecureSocketOptions.SslOnConnect
                     : SecureSocketOptions.StartTlsWhenAvailable;
 
+                client.CheckCertificateRevocation = false;
+
                 await client.ConnectAsync(_settings.Host, _settings.Port, socketOptions, ct);
 
                 if (!string.IsNullOrWhiteSpace(_settings.UserName))

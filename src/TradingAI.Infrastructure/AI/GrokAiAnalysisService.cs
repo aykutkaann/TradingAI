@@ -198,7 +198,6 @@ public class GrokAiAnalysisService : IAiAnalysisService
         );
     }
 
-    // Grok sometimes wraps JSON in ```json ... ``` fences. Strip them.
     private static string? ExtractJson(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return null;

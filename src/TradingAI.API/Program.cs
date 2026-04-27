@@ -15,12 +15,7 @@ using TradingAI.Infrastructure.OutcomeTracking;
 using TradingAI.Infrastructure.Seed;
 using TradingAI.Infrastructure.Storage;
 
-// Npgsql 6+ rejects DateTime values with Kind != Utc when writing to
-// `timestamp with time zone` columns. We have a few code paths (outcome
-// evaluator's resolvedAt, candle timestamps from market-data providers)
-// that produce DateTimeKind.Unspecified. Rather than audit every site,
-// flip the legacy switch — Npgsql will then treat Unspecified as UTC.
-// See: https://www.npgsql.org/efcore/release-notes/6.0.html#timestamp-rationalization
+
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
