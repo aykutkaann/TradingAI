@@ -107,20 +107,22 @@ export function HomePage() {
       {/* ============================================================ */}
       {/* PROMO BANNER — only for logged-out visitors                   */}
       {/* ============================================================ */}
-      {!isAuthenticated && (
-        <button
-          onClick={scrollToTrial}
-          className="relative mx-130  px-4 py-4 bg-gradient-to-r from-[#a855f7]/20 to-[#7c3aed]/10 border border-[#a855f7]/30 hover:from-[#a855f7]/25 hover:to-[#7c3aed]/15 transition-colors cursor-pointer group rounded-xl"
-        >
-          <div className="max-w-7xl mx-auto  flex items-center justify-center gap-2">
-            <Sparkles className="size-5 text-[#a855f7] group-hover:scale-110 transition-transform" />
-            <span className="text-sm md:text-base  font-semibold italic text-white">
-              NO CREDIT CARD REQUIRED Free Trial
-            </span>
-            <ArrowRight className="size-4 text-[#a855f7] ml-2 group-hover:translate-x-1 transition-transform" />
-          </div>
-        </button>
-      )}
+{!isAuthenticated && (
+  <div className="px-4 w-full flex justify-center"> {/* Kapsayıcı ekledik */}
+    <button
+      onClick={scrollToTrial}
+      className="relative w-full max-w-lg px-4 py-4 bg-gradient-to-r from-[#a855f7]/20 to-[#7c3aed]/10 border  border-[#a855f7]/30 hover:from-[#a855f7]/25 hover:to-[#7c3aed]/15 transition-colors cursor-pointer group rounded-xl"
+    >
+      <div className="flex items-center justify-center gap-2">
+        <Sparkles className="size-5 text-[#a855f7] group-hover:scale-110 transition-transform" />
+        <span className="text-sm md:text-base font-semibold italic text-white text-center">
+          NO CREDIT CARD REQUIRED Free Trial
+        </span>
+        <ArrowRight className="size-4 text-[#a855f7] ml-2 group-hover:translate-x-1 transition-transform shrink-0" />
+      </div>
+    </button>
+  </div>
+)}
 
       {/* ============================================================ */}
       {/* HERO — two columns: copy + CTAs left, demo video right         */}

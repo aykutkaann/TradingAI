@@ -117,17 +117,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// CORS — origins come from configuration so dev and prod can each list
-// the URLs they need. Set "Cors:AllowedOrigins" to a comma-separated list
-// (or as a JSON array in appsettings, or the env var
-//   Cors__AllowedOrigins__0, Cors__AllowedOrigins__1, ...).
+
 
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://trading-ai-seven.vercel.app/")
+        policy.WithOrigins("https://trading-ai-seven.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -137,8 +134,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Run pending migrations + seed reference data on startup. Idempotent.
-// Wrapped in a separate scope so the DI scope lifetime is correct.
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -147,7 +143,6 @@ using (var scope = app.Services.CreateScope())
     await PlanSeeder.SeedPlanAsync(db);
 }
 
-// Trust forwarded headers BEFORE any middleware that reads the URL scheme.
 app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
@@ -158,9 +153,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// HTTPS redirect only in dev. In production the platform (Railway / Fly / Nginx)
-// terminates TLS at the edge and the app receives plain HTTP internally —
-// keeping UseHttpsRedirection on would cause a redirect loop or break the app.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
