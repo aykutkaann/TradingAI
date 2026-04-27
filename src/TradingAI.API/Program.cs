@@ -56,15 +56,24 @@ builder.Services.AddHostedService<OutcomeTrackingWorker>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// Health checks. Redis is optional in production (Railway free tier has no
-// Redis plugin) — only register it if a connection string is configured.
+// Health checks. Both connection strings are optional at registration —
+// missing values just mean the corresponding check isn't registered.
+// This lets the app boot far enough to log a meaningful error instead of
+// dying on a null-arg exception inside the health check builder.
+var pgConn = builder.Configuration.GetConnectionString("DefaultConnection");
 var redisConn = builder.Configuration.GetConnectionString("Redis");
-var healthChecks = builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!);
-if (!string.IsNullOrWhiteSpace(redisConn))
+
+if (string.IsNullOrWhiteSpace(pgConn))
 {
-    healthChecks.AddRedis(redisConn);
+    Console.WriteLine(
+        "[STARTUP] ERROR: ConnectionStrings__DefaultConnection env var is not set. " +
+        "App will boot but every DB request will fail. " +
+        "Set this variable on your hosting platform (Railway, Fly, etc).");
 }
+
+var healthChecks = builder.Services.AddHealthChecks();
+if (!string.IsNullOrWhiteSpace(pgConn)) healthChecks.AddNpgSql(pgConn);
+if (!string.IsNullOrWhiteSpace(redisConn)) healthChecks.AddRedis(redisConn);
 
 // Forwarded headers — required behind reverse proxies (Railway, Fly, Nginx)
 // so HttpContext.Request.Scheme reflects the original https:// from the client,

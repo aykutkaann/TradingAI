@@ -135,7 +135,7 @@ namespace TradingAI.Infrastructure
                 exceptionsAllowedBeforeBreaking: 3,
                 durationOfBreak: TimeSpan.FromSeconds(20)))
             .AddPolicyHandler((sp, req) => TradingAI.Infrastructure.Resilience.HttpPolicies.GetTimeoutPolicy(
-                timeout: TimeSpan.FromSeconds(2),
+                timeout: TimeSpan.FromSeconds(6),
                 loggerFactory: sp.GetRequiredService<ILoggerFactory>(),
                 providerName: "CoinGecko"));
 

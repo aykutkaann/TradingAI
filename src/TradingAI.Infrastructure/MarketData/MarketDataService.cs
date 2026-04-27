@@ -37,8 +37,8 @@ public class MarketDataService : IMarketDataService
 
         var fresh = asset.Type switch
         {
-            AssetType.Crypto => await SafeSingleCall(ct, TimeSpan.FromSeconds(2), ct2 => _coinGecko.GetLivePriceAsync(asset, ct2)),
-            AssetType.Forex or AssetType.Commodity or AssetType.Stock => await SafeSingleCall(ct, TimeSpan.FromSeconds(2), ct2 => _twelveData.GetLivePriceAsync(asset, ct2)),
+            AssetType.Crypto => await SafeSingleCall(ct, TimeSpan.FromSeconds(10), ct2 => _coinGecko.GetLivePriceAsync(asset, ct2)),
+            AssetType.Forex or AssetType.Commodity or AssetType.Stock => await SafeSingleCall(ct, TimeSpan.FromSeconds(10), ct2 => _twelveData.GetLivePriceAsync(asset, ct2)),
             _ => null
         };
 
@@ -110,7 +110,7 @@ public class MarketDataService : IMarketDataService
         // 2) batch-fetch the misses per provider
         if (missingCrypto.Count > 0)
         {
-            var fresh = await SafeBatchCall(ct, TimeSpan.FromSeconds(2), ct2 => _coinGecko.GetBatchPricesAsync(missingCrypto, ct2));
+            var fresh = await SafeBatchCall(ct, TimeSpan.FromSeconds(10), ct2 => _coinGecko.GetBatchPricesAsync(missingCrypto, ct2));
             foreach (var p in fresh)
             {
                 await _cache.SetAsync($"price:{p.Symbol}", p, LivePriceTtl, ct);
@@ -120,7 +120,7 @@ public class MarketDataService : IMarketDataService
 
         if (missingOther.Count > 0)
         {
-            var fresh = await SafeBatchCall(ct, TimeSpan.FromSeconds(2), ct2 => _twelveData.GetBatchPricesAsync(missingOther, ct2));
+            var fresh = await SafeBatchCall(ct, TimeSpan.FromSeconds(10), ct2 => _twelveData.GetBatchPricesAsync(missingOther, ct2));
             foreach (var p in fresh)
             {
                 await _cache.SetAsync($"price:{p.Symbol}", p, LivePriceTtl, ct);
