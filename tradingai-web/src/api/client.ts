@@ -13,7 +13,7 @@ if (!baseURL) {
 
 export const api = axios.create({
   baseURL: baseURL || 'https://localhost:7155',
-  timeout: 30000, // 30 second timeout
+  timeout: 45000, // Increased to 45 seconds for better reliability with slow networks
 })
 
 // Attach access token to every request automatically.

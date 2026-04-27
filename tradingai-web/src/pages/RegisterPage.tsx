@@ -57,11 +57,38 @@ export function RegisterPage() {
     onError: (err: any) => {
       console.error('Registration error:', err)
 
+      // Check if user was actually created in DB despite the error
+      // This can happen if the error occurred during response transmission
+      const hasValidTokens = localStorage.getItem('accessToken') && localStorage.getItem('refreshToken')
+
+      if (hasValidTokens) {
+        // Registration likely succeeded but response handling failed
+        // Rehydrate auth state from localStorage and navigate
+        console.warn('Registration succeeded but response error occurred. Recovering...')
+        // The useEffect hook will handle navigation when isAuthenticated becomes true
+        // Force a re-check of auth state
+        const stored = localStorage.getItem('auth-storage')
+        if (stored) {
+          try {
+            const authState = JSON.parse(stored)
+            if (authState.state?.isAuthenticated) {
+              toast.success('Registration successful!')
+              navigate('/dashboard', { replace: true })
+              return
+            }
+          } catch (e) {
+            console.error('Failed to parse auth storage:', e)
+          }
+        }
+      }
+
       // Handle different error types
       if (err?.code === 'ECONNABORTED') {
         toast.error('Request timeout. Check your backend API URL in .env.production')
       } else if (err?.response?.status === 0) {
         toast.error('Cannot reach backend API. Check VITE_API_URL setting.')
+      } else if (err?.response?.status === 409) {
+        toast.error('Email or username already exists')
       } else {
         const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Registration failed'
         toast.error(errorMsg)
