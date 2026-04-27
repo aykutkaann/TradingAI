@@ -162,6 +162,28 @@ export function DashboardPage() {
           )}
       </section>
 
+            {/* ============================================================ */}
+      {/* MARKET EVENTS — TradingView economic calendar widget           */}
+      {/* ============================================================ */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+          <CalendarDays className="size-3.5" /> Today's Market Events
+        </h2>
+        <div className="rounded-lg overflow-hidden border border-border/50 bg-card/40 backdrop-blur">
+          <TradingViewWidget
+            scriptName="embed-widget-events.js"
+            config={{
+              colorTheme: 'dark',
+              isTransparent: true,
+              width: '100%',
+              height: 400,
+              locale: 'en',
+              importanceFilter: '0,1', // medium + high impact only
+            }}
+          />
+        </div>
+      </section>
+
       {/* ============================================================ */}
       {/* RECENT ANALYSES — last 4, "pick up where you left off"         */}
       {/* ============================================================ */}
@@ -209,27 +231,7 @@ export function DashboardPage() {
         )}
       </section>
 
-      {/* ============================================================ */}
-      {/* MARKET EVENTS — TradingView economic calendar widget           */}
-      {/* ============================================================ */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-          <CalendarDays className="size-3.5" /> Today's Market Events
-        </h2>
-        <div className="rounded-lg overflow-hidden border border-border/50 bg-card/40 backdrop-blur">
-          <TradingViewWidget
-            scriptName="embed-widget-events.js"
-            config={{
-              colorTheme: 'dark',
-              isTransparent: true,
-              width: '100%',
-              height: 400,
-              locale: 'en',
-              importanceFilter: '0,1', // medium + high impact only
-            }}
-          />
-        </div>
-      </section>
+
     </div>
   )
 }
