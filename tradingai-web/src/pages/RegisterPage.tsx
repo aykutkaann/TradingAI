@@ -42,10 +42,15 @@ export function RegisterPage() {
     onSuccess: (data) => {
       setAuth(data.user, data.accessToken, data.refreshToken)
       toast.success(`Welcome, ${data.user.userName}!`)
-      navigate('/dashboard')
+      // Use setTimeout to ensure state updates before navigation
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true })
+      }, 100)
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message ?? 'Registration failed')
+      const errorMsg = err?.response?.data?.message ?? err?.message ?? 'Registration failed'
+      toast.error(errorMsg)
+      console.error('Registration error:', err)
     },
   })
 

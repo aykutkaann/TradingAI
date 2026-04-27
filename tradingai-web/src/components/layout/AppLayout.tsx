@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/stores/authStore'
 import { NotificationsBell } from '@/components/notifications/NotificationsBell'
 import { Footer } from '@/components/layout/Footer'
+import { Navbar } from '@/components/layout/Navbar'
 import { subscriptionsApi } from '@/api/subscriptions'
 import { tierLabel } from '@/types/subscription'
 import { assetUrl } from '@/lib/assetUrl'
@@ -42,6 +43,20 @@ export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 
+  // If not authenticated, show navbar instead of sidebar
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <Navbar />
+        <main className="flex-1 px-4 md:px-8 py-6">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  // Authenticated layout with sidebar
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       {/* Desktop sidebar — always visible on md+ */}
@@ -161,10 +176,9 @@ function Sidebar({ onClose, className }: { onClose: () => void; className?: stri
               to={item.to}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                  isActive
-                    ? 'bg-[#a855f7]/15 text-[#a855f7] font-medium'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${isActive
+                  ? 'bg-[#a855f7]/15 text-[#a855f7] font-medium'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`
               }
             >
@@ -184,10 +198,9 @@ function Sidebar({ onClose, className }: { onClose: () => void; className?: stri
               to="/support"
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                  isActive
-                    ? 'bg-[#a855f7]/15 text-[#a855f7] font-medium'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${isActive
+                  ? 'bg-[#a855f7]/15 text-[#a855f7] font-medium'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`
               }
             >

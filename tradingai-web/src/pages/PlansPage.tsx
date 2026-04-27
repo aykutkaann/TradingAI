@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Star, Zap } from 'lucide-react'
 import { toast } from 'sonner'
@@ -8,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { subscriptionsApi } from '@/api/subscriptions'
 import { SubscriptionTier, tierLabel } from '@/types/subscription'
 import { getApiErrorMessage } from '@/lib/errors'
+import { useAuthStore } from '@/stores/authStore'
 
 type BillingPeriod = 'monthly' | 'annual'
 
@@ -86,11 +88,14 @@ const PLANS: PlanCard[] = [
 
 export function PlansPage() {
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 
   const { data: current, isLoading } = useQuery({
     queryKey: ['my-subscription'],
     queryFn: subscriptionsApi.getMine,
+    enabled: isAuthenticated, // Only fetch if authenticated
   })
 
   const upgradeMutation = useMutation({
@@ -129,7 +134,8 @@ export function PlansPage() {
 
       {isLoading && <Skeleton className="h-96 w-full max-w-5xl mx-auto" />}
 
-      {current && (
+      {/* If authenticated, show current subscription and upgrade options */}
+      {isAuthenticated && current && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {PLANS.map((plan) => (
             <PlanCardView
@@ -148,6 +154,25 @@ export function PlansPage() {
                   cancelMutation.mutate()
                 }
               }}
+              isAuthenticated={isAuthenticated}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* If not authenticated, show signup buttons for each plan */}
+      {!isAuthenticated && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          {PLANS.map((plan) => (
+            <PlanCardView
+              key={plan.tier}
+              plan={plan}
+              period={period}
+              currentTier={undefined}
+              isPending={false}
+              onUpgrade={() => navigate('/register')}
+              onCancel={() => { }}
+              isAuthenticated={isAuthenticated}
             />
           ))}
         </div>
@@ -175,11 +200,10 @@ function BillingToggle({
       <button
         type="button"
         onClick={() => onChange('monthly')}
-        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-          value === 'monthly'
-            ? 'bg-[#a855f7] text-white'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
+        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${value === 'monthly'
+          ? 'bg-[#a855f7] text-white'
+          : 'text-muted-foreground hover:text-foreground'
+          }`}
       >
         Monthly
       </button>
@@ -190,19 +214,17 @@ function BillingToggle({
         aria-label="Toggle annual billing"
       >
         <span
-          className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${
-            value === 'annual' ? 'left-6 bg-[#a855f7]' : 'left-0.5'
-          }`}
+          className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${value === 'annual' ? 'left-6 bg-[#a855f7]' : 'left-0.5'
+            }`}
         />
       </button>
       <button
         type="button"
         onClick={() => onChange('annual')}
-        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-          value === 'annual'
-            ? 'bg-[#a855f7] text-white'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
+        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${value === 'annual'
+          ? 'bg-[#a855f7] text-white'
+          : 'text-muted-foreground hover:text-foreground'
+          }`}
       >
         Annual{' '}
         <span className="text-[10px] text-emerald-400 ml-1">save ~17%</span>
@@ -219,17 +241,19 @@ function PlanCardView({
   isPending,
   onUpgrade,
   onCancel,
+  isAuthenticated,
 }: {
   plan: PlanCard
   period: BillingPeriod
-  currentTier: SubscriptionTier
+  currentTier?: SubscriptionTier
   isPending: boolean
   onUpgrade: () => void
   onCancel: () => void
+  isAuthenticated: boolean
 }) {
-  const isCurrent = plan.tier === currentTier
-  const isUpgrade = plan.tier > currentTier
-  const isDowngrade = plan.tier < currentTier
+  const isCurrent = currentTier !== undefined && plan.tier === currentTier
+  const isUpgrade = currentTier !== undefined && plan.tier > currentTier
+  const isDowngrade = currentTier !== undefined && plan.tier < currentTier
   const isFree = plan.tier === SubscriptionTier.Free
 
   const displayPrice =
@@ -262,11 +286,10 @@ function PlanCardView({
           <>
             <div className="flex items-baseline justify-center gap-1">
               <span
-                className={`text-5xl font-extrabold bg-gradient-to-r bg-clip-text text-transparent ${
-                  plan.popular
-                    ? 'from-amber-400 to-purple-500'
-                    : 'from-[#a855f7] to-[#7c3aed]'
-                }`}
+                className={`text-5xl font-extrabold bg-gradient-to-r bg-clip-text text-transparent ${plan.popular
+                  ? 'from-amber-400 to-purple-500'
+                  : 'from-[#a855f7] to-[#7c3aed]'
+                  }`}
               >
                 ${displayPrice.toFixed(2)}
               </span>
@@ -316,6 +339,7 @@ function PlanCardView({
         isPending={isPending}
         onUpgrade={onUpgrade}
         onCancel={onCancel}
+        isAuthenticated={isAuthenticated}
       />
     </div>
   )
@@ -330,6 +354,7 @@ function PlanCta({
   isPending,
   onUpgrade,
   onCancel,
+  isAuthenticated,
 }: {
   plan: PlanCard
   isCurrent: boolean
@@ -338,7 +363,23 @@ function PlanCta({
   isPending: boolean
   onUpgrade: () => void
   onCancel: () => void
+  isAuthenticated: boolean
 }) {
+  // If not authenticated, show "Sign Up" button for all plans
+  if (!isAuthenticated) {
+    const label = plan.tier === SubscriptionTier.Free ? 'Get Started' : `Get ${plan.name}`
+    return (
+      <Button
+        className={`w-full h-11 bg-gradient-to-r ${plan.ctaGradient} text-white hover:opacity-90 font-semibold`}
+        onClick={onUpgrade}
+      >
+        {plan.tier !== SubscriptionTier.Free && <Zap className="size-4 mr-1 fill-current" />}
+        {label}
+      </Button>
+    )
+  }
+
+  // If authenticated, show upgrade/downgrade/current plan options
   if (isCurrent) {
     if (plan.tier === SubscriptionTier.Free) {
       return (

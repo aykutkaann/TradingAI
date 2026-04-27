@@ -95,14 +95,39 @@ const howItWorksSteps = [
 export function HomePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 
+  const scrollToTrial = () => {
+    const trialSection = document.getElementById('trial-card')
+    if (trialSection) {
+      trialSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="space-y-16 pb-12">
+      {/* ============================================================ */}
+      {/* PROMO BANNER — only for logged-out visitors                   */}
+      {/* ============================================================ */}
+      {!isAuthenticated && (
+        <button
+          onClick={scrollToTrial}
+          className="relative mx-130  px-4 py-4 bg-gradient-to-r from-[#a855f7]/20 to-[#7c3aed]/10 border border-[#a855f7]/30 hover:from-[#a855f7]/25 hover:to-[#7c3aed]/15 transition-colors cursor-pointer group rounded-xl"
+        >
+          <div className="max-w-7xl mx-auto  flex items-center justify-center gap-2">
+            <Sparkles className="size-5 text-[#a855f7] group-hover:scale-110 transition-transform" />
+            <span className="text-sm md:text-base  font-semibold italic text-white">
+              NO CREDIT CARD REQUIRED Free Trial
+            </span>
+            <ArrowRight className="size-4 text-[#a855f7] ml-2 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+      )}
+
       {/* ============================================================ */}
       {/* HERO — two columns: copy + CTAs left, demo video right         */}
       {/* The radial purple glow is the layout's mood-setter; everything */}
       {/* else stays close to your existing dark theme.                  */}
       {/* ============================================================ */}
-      <section className="relative -mx-4 px-4 pt-8 pb-10 overflow-hidden">
+      <section className="relative -mx-4 px-4 pt-0 pb-10 overflow-hidden">
         {/* Purple radial glow background */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none"
@@ -195,9 +220,43 @@ export function HomePage() {
       </section>
 
       {/* ============================================================ */}
+      {/* ABOUT — our story                                              */}
+      {/* ============================================================ */}
+      <section id="about" className="max-w-3xl mx-auto space-y-6 py-12">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl md:text-4xl font-bold">Our Story</h2>
+          <p className="text-lg text-muted-foreground">
+            Trendox AI was born from frustration.
+          </p>
+        </div>
+
+        <div className="space-y-4 text-muted-foreground">
+          <p>
+            Our founders spent years as active traders, analyzing charts for hours a day. Pattern recognition. Support and resistance. Risk-reward ratios. Entry and exit planning. The same workflow, day after day—and the results were inconsistent. Not because the strategy was wrong, but because human emotion and fatigue often interfered with execution.
+          </p>
+
+          <p>
+            Then came machine learning. We realized that AI could do what we do best: instantly spot patterns in charts, measure risk objectively, and deliver consistent trade plans without emotion. But existing tools were either too complex (data science platforms) or too rigid (cookie-cutter bots). Nothing felt human.
+          </p>
+
+          <p>
+            So we built Trendox AI—a platform where traders upload their chart, get AI-powered analysis in seconds, and decide for themselves. The AI doesn't replace your judgment; it sharpens it. It handles the boring pattern-matching work so you can focus on the bigger picture: your risk tolerance, your conviction, your edge.
+          </p>
+
+          <p>
+            Today, thousands of traders use Trendox to analyze trades faster, share ideas with a like-minded community, and build a track record. We're proud that our users trust the AI *and* their own instincts. That's not AI replacing traders—that's AI elevating them.
+          </p>
+
+          <p>
+            Welcome to the future of trading. Let's get to work.
+          </p>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
       {/* HOW IT WORKS — 4 steps in a 2x2 grid, each card with a clip    */}
       {/* ============================================================ */}
-      <section className="max-w-5xl mx-auto space-y-8">
+      <section id="how-it-works" className="max-w-5xl mx-auto space-y-8">
         <div className="text-center space-y-1">
           <h2 className="text-2xl md:text-4xl font-bold">How It Works</h2>
           <p className="text-muted-foreground">
@@ -209,11 +268,10 @@ export function HomePage() {
           {howItWorksSteps.map((step) => (
             <div
               key={step.n}
-              className={`relative rounded-xl border bg-card/40 backdrop-blur p-3 transition-colors ${
-                step.highlight
-                  ? 'border-[#a855f7]/60 shadow-lg shadow-purple-500/20'
-                  : 'border-border/50'
-              }`}
+              className={`relative rounded-xl border bg-card/40 backdrop-blur p-3 transition-colors ${step.highlight
+                ? 'border-[#a855f7]/60 shadow-lg shadow-purple-500/20'
+                : 'border-border/50'
+                }`}
             >
               {/* Clip — falls back to the full hero video if step-N.mp4 isn't present yet */}
               <div className="rounded-md overflow-hidden border border-border/50 bg-black">
@@ -266,13 +324,13 @@ export function HomePage() {
       {/* TRIAL CARD — only for logged-out visitors                      */}
       {/* ============================================================ */}
       {!isAuthenticated && (
-        <section className="max-w-3xl mx-auto">
+        <section id="trial-card" className="max-w-3xl mx-auto">
           <Card className="border-[#a855f7]/30 bg-gradient-to-br from-[#a855f7]/10 to-transparent">
             <CardContent className="p-8 space-y-4">
-              <Badge variant="outline" className="text-[#a855f7] border-[#a855f7]/40">
-                <Sparkles className="size-9 mr-1" /> Free trial. No credit card required.
+              <Badge variant="outline" className="text-[#a855f7] border-[#a855f7]/40 px-4 py-2 text-base">
+                <Sparkles className="size-5 mr-2" /> Free trial. No credit card required.
               </Badge>
-              <h2 className="text-2xl font-bold">Try every feature free</h2>
+              <h2 className="text-3xl font-bold">Try every feature free</h2>
               <ul className="space-y-2">
                 {trialPerks.map((perk) => (
                   <li key={perk} className="flex items-start gap-2 text-sm">
