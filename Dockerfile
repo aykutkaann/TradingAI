@@ -18,6 +18,15 @@ RUN dotnet publish src/TradingAI.API/TradingAI.API.csproj -c Release -o /app/pub
 # ---- Runtime stage ------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
+
+# Npgsql probes GSSAPI/Kerberos for auth even on plain password connections.
+# The default aspnet image doesn't ship libgssapi_krb5.so.2 — Railway logs
+# "Cannot load library libgssapi_krb5.so.2" and Postgres queries fail.
+# Installing it (~2 MB) is the upstream-recommended fix.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
 
 # Railway / Fly / Render set $PORT — bind Kestrel to it. Default 8080 for local docker run.
