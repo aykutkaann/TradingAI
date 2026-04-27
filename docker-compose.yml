@@ -86,7 +86,7 @@ services:
 
       # Email (Mailtrap sandbox by default)
       Email__Host: "${EMAIL_HOST:-sandbox.smtp.mailtrap.io}"
-      Email__Port: "${EMAIL_PORT:-2525}"
+      Email__Port: "${EMAIL_PORT:-587}"
       Email__Username: "${EMAIL_USERNAME}"
       Email__Password: "${EMAIL_PASSWORD}"
       Email__FromEmail: "${EMAIL_FROM:-noreply@tradingai.dev}"
