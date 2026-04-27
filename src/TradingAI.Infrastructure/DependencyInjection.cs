@@ -73,10 +73,21 @@ namespace TradingAI.Infrastructure
             services.AddScoped<IMarketDataService, MarketDataService>();
 
 
-            services.AddSingleton<IConnectionMultiplexer>(_ =>
-                 ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")!));
-
-            services.AddScoped<ICacheService, RedisCacheService>();
+            // Redis is optional. If a connection string is set, wire up the real
+            // multiplexer + RedisCacheService. Otherwise fall back to NullCacheService
+            // so the app boots without a Redis instance (Railway free tier can't
+            // always provision one).
+            var redisConnString = config.GetConnectionString("Redis");
+            if (!string.IsNullOrWhiteSpace(redisConnString))
+            {
+                services.AddSingleton<IConnectionMultiplexer>(_ =>
+                    ConnectionMultiplexer.Connect(redisConnString));
+                services.AddScoped<ICacheService, RedisCacheService>();
+            }
+            else
+            {
+                services.AddSingleton<ICacheService, NullCacheService>();
+            }
 
             // AI analysis (Grok via xAI / OpenAI-compatible API)
             services.Configure<GrokSettings>(config.GetSection("Grok"));
