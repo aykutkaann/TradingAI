@@ -75,9 +75,7 @@ var healthChecks = builder.Services.AddHealthChecks();
 if (!string.IsNullOrWhiteSpace(pgConn)) healthChecks.AddNpgSql(pgConn);
 if (!string.IsNullOrWhiteSpace(redisConn)) healthChecks.AddRedis(redisConn);
 
-// Forwarded headers — required behind reverse proxies (Railway, Fly, Nginx)
-// so HttpContext.Request.Scheme reflects the original https:// from the client,
-// not the http:// hop inside the platform's network.
+
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
